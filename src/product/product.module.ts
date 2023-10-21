@@ -6,6 +6,7 @@ import { Product } from './models/product.entity';
 import { ProductImages } from './models/product.images';
 import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
+import { UploadController } from './upload.controller';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { UserModule } from 'src/user/user.module';
     UserModule,
   ],
   providers: [ProductService],
-  controllers: [ProductController]
+  controllers: [ProductController, UploadController]
 })
 export class ProductModule {}

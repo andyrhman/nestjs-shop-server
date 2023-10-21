@@ -11,4 +11,7 @@ export class UserService extends AbstractService{
     ) {
         super(userRepository)
     }
+    async find(options, relations = []) {
+        return this.userRepository.find({ where: options, relations, order: {created_at: 'DESC'}  });
+    }
 }

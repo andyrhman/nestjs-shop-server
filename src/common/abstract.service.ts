@@ -11,7 +11,7 @@ export abstract class AbstractService {
 
     // Find all user in the DB.
     async all(relations = []): Promise<any[]> {
-        return await this.repository.find({relations});
+        return await this.repository.find({ relations });
     }
 
     async paginate(page = 1, relations = []): Promise<PaginatedResult> {
@@ -51,6 +51,13 @@ export abstract class AbstractService {
 
     async find(options, relations = []) {
         return this.repository.find({ where: options, relations });
+    }
+
+    async total(options, relations = []) {
+        const entities = await this.repository.find({ where: options, relations });
+        return {
+            total: entities.length
+        };
     }
 
     // Find a user by their username or email
