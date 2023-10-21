@@ -5,7 +5,9 @@ import {
     ConflictException,
     Controller,
     Get,
+    NotFoundException,
     Post,
+    Put,
     Req,
     Res,
     UnauthorizedException,
@@ -135,6 +137,87 @@ export class AuthController {
             return user;
         } else if (user.is_user === false) {
             return user;
+        }
+    }
+
+    // * Update user info
+    @UseGuards(AuthGuard)
+    @Put(['admin/info', 'user/info'])
+    async update(
+        @Req() request: Request,
+        @Body() body: any,
+    ) {
+        const id = await this.authService.userId(request);
+
+        const existingUser = await this.userService.findOne({ id });
+
+        if (!existingUser) {
+            throw new NotFoundException('User not found');
+        }
+
+        if (body.fullname) {
+            existingUser.fullName = body.fullname;
+        }
+
+        if (body.email && body.email !== existingUser.email) {
+            const existingUserByEmail = await this.userService.findOne({ email: body.email });
+            if (existingUserByEmail) {
+                throw new ConflictException('Email already exists');
+            }
+            existingUser.email = body.email;
+        }
+
+        if (body.username && body.username !== existingUser.username) {
+            const existingUserByUsername = await this.userService.findOne({ username: body.username });
+            if (existingUserByUsername) {
+                throw new ConflictException('Username already exists');
+            }
+            existingUser.username = body.username;
+        }
+
+        await this.userService.update(id, existingUser);
+
+        return this.userService.findOne({ id });
+    }
+
+    // * User update their own password
+    @Put(['admin/password', 'user/password'])
+    @UseGuards(AuthGuard)
+    async updatePassword(
+        @Req() request: Request,
+        @Body() body: any,
+    ) {
+        if (!body.password || !body.confirm_password) {
+            throw new BadRequestException();
+        }
+
+        if (body.password !== body.confirm_password) {
+            throw new BadRequestException("Password do not match.");
+        }
+
+        const cookie = request.cookies['my_session'];
+
+        const { id } = await this.jwtService.verifyAsync(cookie);
+
+        const hashPassword = await argon2.hash(body.password);
+
+        await this.userService.update(id, {
+            password: hashPassword
+        });
+
+        return this.userService.findOne({ id });
+    }
+
+    // * Logout user
+    @UseGuards(AuthGuard)
+    @Post(['admin/logout', 'user/logout'])
+    async logout(
+        @Res({ passthrough: true }) response: Response
+    ) {
+        response.clearCookie('my_session');
+
+        return {
+            message: "success"
         }
     }
 }
