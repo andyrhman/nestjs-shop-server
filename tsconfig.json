@@ -16,6 +16,15 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    // * Use this for seeding faker in db
+    // ? and also you need to install this
+    // TODO npm install --save-dev tsconfig-paths
+    "paths": {
+      "src/*": [
+        "src/*"
+      ]
+    },
+    // * https://www.phind.com/search?cache=q388g31i4exc8crur9zdubfq
   }
 }

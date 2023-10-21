@@ -19,6 +19,9 @@ export class User{
     @Exclude()
     password: string;
 
+    @Column({default: true})
+    is_user: boolean;
+
     @CreateDateColumn()
     created_at: string;
 
