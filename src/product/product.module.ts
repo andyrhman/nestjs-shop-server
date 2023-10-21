@@ -7,6 +7,7 @@ import { ProductImages } from './models/product.images';
 import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
 import { UploadController } from './upload.controller';
+import { ProductImagesService } from './product-images.service';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { UploadController } from './upload.controller';
     AuthModule,
     UserModule,
   ],
-  providers: [ProductService],
+  providers: [ProductService, ProductImagesService],
   controllers: [ProductController, UploadController]
 })
 export class ProductModule {}

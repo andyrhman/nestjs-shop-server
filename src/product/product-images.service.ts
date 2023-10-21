@@ -6,11 +6,13 @@ import { AbstractService } from 'src/common/abstract.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class ProductService extends AbstractService {
+export class ProductImagesService extends AbstractService {
     constructor(
-        @InjectRepository(Product) private readonly productRepository: Repository<Product>
+        @InjectRepository(ProductImages) private readonly productImagesRepository: Repository<ProductImages>
     ) {
-        super(productRepository)
+        super(productImagesRepository)
     }
-
+    async delete(productId: string): Promise<any> {
+        return this.productImagesRepository.delete({ productId });
+    }
 }
