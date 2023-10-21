@@ -1,0 +1,21 @@
+services:
+  server:
+    container_name: server
+    build:
+      context: .
+    ports:
+      - 8000:3000
+    volumes:
+      - ".:/var/nest-shop-server"
+  db:
+    container_name: db
+    image: postgres:15.3
+    restart: always
+    environment:
+      POSTGRES_DB: my_shop
+      POSTGRES_USER: postgres  # The PostgreSQL user
+      POSTGRES_PASSWORD: AndySatu989!e  # The password for the PostgreSQL user
+    volumes:
+      - ./.pgdata:/var/lib/postgresql/data  # Volume for persisting PostgreSQL data
+    ports:
+      - 54322:5432  # Expose a different port if 5432 is already in use by Project 1
