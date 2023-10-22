@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { ProductModule } from './product/product.module';
+import { AddressModule } from './address/address.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ProductModule } from './product/product.module';
     UserModule,
     AuthModule,
     ProductModule,
+    AddressModule,
   ],
   controllers: [],
   providers: [],
