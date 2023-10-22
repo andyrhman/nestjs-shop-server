@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { UserService } from 'src/user/user.service';
 import { AuthService } from 'src/auth/auth.service';
@@ -10,6 +10,7 @@ import { ProductImages } from './models/product.images';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ProductUpdateDto } from './models/product-update.dto';
 import { isUUID } from 'class-validator';
+import { ProductImagesUpdateDTO } from './models/update-images.dto';
 
 @Controller()
 export class ProductController {
@@ -64,28 +65,31 @@ export class ProductController {
         if (!isUUID(id)) {
             throw new BadRequestException('Invalid UUID format');
         }
-        const products = await this.productService.findOne({id})
+        const products = await this.productService.findOne({ id })
         if (!products) {
             throw new BadRequestException("Product not found")
         }
-        const findImages = await this.productImageService.findOne({ productId: id });
 
-        if (findImages) {
-            await this.productImageService.delete(findImages.productId);
+        await this.productService.update(id, body);
+
+        return this.productService.findOne({ id });
+    }
+
+    // * Update Product Images.
+    @UseGuards(AuthGuard)
+    @Put('admin/product-images/:id')
+    async updateImages(
+        @Param('id') id: string,
+        @Body() body: ProductImagesUpdateDTO
+    ) {
+        if (!isUUID(id)) {
+            throw new BadRequestException('Invalid UUID format');
+        }
+        const product = await this.productService.findOne({ id })
+        if (!product) {
+            throw new BadRequestException("Product not found")
         }
 
-        const p = new Product();
-        p.title = body.title;
-        p.slug = slugify(body.title, {
-            lower: true,
-            strict: true,
-            trim: true
-        });
-        p.description = body.description;
-        p.image = body.image;
-        p.price = body.price;
-
-        await this.productService.update(id, p);
         for (let i of body.images) {
             const productImages = new ProductImages()
             productImages.productId = id
@@ -93,6 +97,30 @@ export class ProductController {
             await this.productImageService.create(productImages)
         }
 
-        return this.productService.findOne({ id });
+        return this.productImageService.find({ productId: id });
     }
+
+    // * Delete product and the multiple images
+    @UseGuards(AuthGuard)
+    @Delete('admin/product/:id')
+    async delete(@Param('id') id: string) {
+        // * Find the related images
+        const findImages = await this.productImageService.find({ productId: id });
+
+        // * Delete the related images
+        for (const image of findImages) {
+            await this.productImageService.delete(image.productId);
+        }
+
+        // * Delete the product
+        return this.productService.delete(id);
+    }
+
+    // * Delete Product Images
+    @UseGuards(AuthGuard)
+    @Delete('admin/product-images/:id')
+    async deleteImages(@Param('id') id: string) {
+        return this.productImageService.delete(id);
+    }
+
 }

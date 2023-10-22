@@ -27,6 +27,6 @@ export class Product {
   @UpdateDateColumn()
   updated_at: string;
 
-  @OneToMany(() => ProductImages, productImages => productImages.product)
+  @OneToMany(() => ProductImages, productImages => productImages.product, { cascade: true })
   product_images: ProductImages[];
 }

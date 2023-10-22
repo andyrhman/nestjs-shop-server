@@ -12,5 +12,4 @@ export class ProductService extends AbstractService {
     ) {
         super(productRepository)
     }
-
 }
