@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Exclude } from "class-transformer";
 import { Address } from "src/address/models/address.entity";
+import { Order } from "src/order/models/order.entity";
 
 @Entity('users')
 export class User{
@@ -31,4 +32,7 @@ export class User{
 
     @OneToOne(() => Address, (address) => address.user)
     address: Address;
+
+    @OneToMany(() => Order, (order) => order.user)
+    orders: Order[];
 }
