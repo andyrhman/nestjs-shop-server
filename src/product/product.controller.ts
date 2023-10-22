@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { UserService } from 'src/user/user.service';
 import { AuthService } from 'src/auth/auth.service';
@@ -11,6 +11,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { ProductUpdateDto } from './models/product-update.dto';
 import { isUUID } from 'class-validator';
 import { ProductImagesUpdateDTO } from './models/update-images.dto';
+import { Request } from 'express';
 
 @Controller()
 export class ProductController {
@@ -47,6 +48,26 @@ export class ProductController {
         }
 
         return product;
+    }
+
+    // * Get all products
+    // * https://www.phind.com/search?cache=uambrl956nwdhj9g2clkh4h8
+    @UseGuards(AuthGuard)
+    @Get('admin/products')
+    async all(
+        @Req() request: Request
+    ) {
+        let products = await this.productService.find({});
+
+        if (request.query.search) {
+            const search = request.query.search.toString().toLowerCase();
+            products = products.filter(
+                p => p.title.toLowerCase().indexOf(search) >= 0 ||
+                    p.description.toLowerCase().indexOf(search) >= 0
+            )
+        }
+
+        return products;
     }
 
     // * Get one product
