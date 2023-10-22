@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Exclude } from "class-transformer";
+import { Address } from "src/address/models/address.entity";
 
 @Entity('users')
 export class User{
@@ -27,4 +28,7 @@ export class User{
 
     @UpdateDateColumn()
     updated_at: string;
+
+    @OneToOne(() => Address, (address) => address.user)
+    address: Address;
 }

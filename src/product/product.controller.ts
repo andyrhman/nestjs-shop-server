@@ -52,8 +52,7 @@ export class ProductController {
 
     // * Get all products
     // * https://www.phind.com/search?cache=uambrl956nwdhj9g2clkh4h8
-    @UseGuards(AuthGuard)
-    @Get('admin/products')
+    @Get('products')
     async all(
         @Req() request: Request
     ) {
