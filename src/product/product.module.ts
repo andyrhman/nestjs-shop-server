@@ -16,6 +16,7 @@ import { ProductImagesService } from './product-images.service';
     UserModule,
   ],
   providers: [ProductService, ProductImagesService],
-  controllers: [ProductController, UploadController]
+  controllers: [ProductController, UploadController],
+  exports: [ProductService]
 })
 export class ProductModule {}

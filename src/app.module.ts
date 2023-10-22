@@ -8,6 +8,7 @@ import { CommonModule } from './common/common.module';
 import { ProductModule } from './product/product.module';
 import { AddressModule } from './address/address.module';
 import { OrderModule } from './order/order.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { OrderModule } from './order/order.module';
     ProductModule,
     AddressModule,
     OrderModule,
+    CartModule,
   ],
   controllers: [],
   providers: [],
