@@ -21,5 +21,8 @@ export class ProductCreateDto {
     @ArrayNotEmpty({ message: 'Variant is required' })
     @ArrayMinSize(1, { message: 'Variant should have at least 1 item' })
     @IsString({each: true, message: 'Variant must be a string'})
-    variants: string[]
+    variants: string[];
+
+    @IsNotEmpty({message: "Category is required"})
+    category: string;
 }

@@ -1,7 +1,7 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ProductImages } from "./product.images";
 import { ProductVariation } from "./product-variation.entity";
-import { ProductVariantService } from "../product-variant.service";
+import { Category } from "src/category/models/category.entity";
 
 @Entity('products')
 export class Product {
@@ -29,9 +29,16 @@ export class Product {
   @UpdateDateColumn()
   updated_at: string;
 
+  @Column({name: "category_id"})
+  category_id: string;
+
   @OneToMany(() => ProductImages, productImages => productImages.product, { cascade: true })
   product_images: ProductImages[];
 
   @OneToMany(() => ProductVariation, (variant) => variant.product)
   variant: ProductVariation[];
+
+  @ManyToOne(() => Category, (category) => category.product)
+  @JoinColumn({name: "category_id"})
+  category: Category;
 }

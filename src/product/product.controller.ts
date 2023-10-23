@@ -38,6 +38,7 @@ export class ProductController {
         p.description = body.description;
         p.image = body.image;
         p.price = body.price;
+        p.category_id = body.category
 
         const product = await this.productService.create(p);
         for (let i of body.images) {
@@ -79,7 +80,7 @@ export class ProductController {
     // * Get one product
     @Get('product/:slug')
     async get(@Param('slug') slug: string) {
-        return this.productService.findOne({ slug }, ['product_images', 'variant']);
+        return this.productService.findOne({ slug }, ['product_images', 'variant', 'category']);
     }
 
     // * Update Products.
