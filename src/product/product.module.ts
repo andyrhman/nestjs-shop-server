@@ -4,18 +4,16 @@ import { ProductController } from './product.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './models/product.entity';
 import { ProductImages } from './models/product.images';
-import { AuthModule } from 'src/auth/auth.module';
-import { UserModule } from 'src/user/user.module';
 import { UploadController } from './upload.controller';
 import { ProductImagesService } from './product-images.service';
+import { ProductVariation } from './models/product-variation.entity';
+import { ProductVariantService } from './product-variant.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product, ProductImages]),
-    AuthModule,
-    UserModule,
+    TypeOrmModule.forFeature([Product, ProductImages, ProductVariation])
   ],
-  providers: [ProductService, ProductImagesService],
+  providers: [ProductService, ProductImagesService, ProductVariantService],
   controllers: [ProductController, UploadController],
   exports: [ProductService]
 })

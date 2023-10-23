@@ -1,25 +1,25 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { UserService } from 'src/user/user.service';
-import { AuthService } from 'src/auth/auth.service';
-import { ProductCreateDto } from './models/product-create.dto';
+import { ProductCreateDto } from './dto/product-create.dto';
 import { Product } from './models/product.entity';
 import slugify from 'slugify';
 import { ProductImagesService } from './product-images.service';
 import { ProductImages } from './models/product.images';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { ProductUpdateDto } from './models/product-update.dto';
+import { ProductUpdateDto } from './dto/product-update.dto';
 import { isUUID } from 'class-validator';
-import { ProductImagesUpdateDTO } from './models/update-images.dto';
+import { ProductImagesUpdateDTO } from './dto/update-images.dto';
 import { Request } from 'express';
+import { ProductVariation } from './models/product-variation.entity';
+import { ProductVariantService } from './product-variant.service';
+import { ProductVariantsUpdateDTO } from './dto/update-variants.dto';
 
 @Controller()
 export class ProductController {
     constructor(
         private productService: ProductService,
         private productImageService: ProductImagesService,
-        private userService: UserService,
-        private authService: AuthService
+        private productVariantService: ProductVariantService
     ) { }
 
     // * Create Products
@@ -47,6 +47,13 @@ export class ProductController {
             await this.productImageService.create(productImages)
         }
 
+        for (let v of body.variants) {
+            const productVariant = new ProductVariation()
+            productVariant.name = v
+            productVariant.product_id = product.id
+            await this.productVariantService.create(productVariant)
+        }
+
         return product;
     }
 
@@ -72,7 +79,7 @@ export class ProductController {
     // * Get one product
     @Get('product/:slug')
     async get(@Param('slug') slug: string) {
-        return this.productService.findOne({ slug }, ['product_images']);
+        return this.productService.findOne({ slug }, ['product_images', 'variant']);
     }
 
     // * Update Products.
@@ -93,6 +100,31 @@ export class ProductController {
         await this.productService.update(id, body);
 
         return this.productService.findOne({ id });
+    }
+
+    // * Update Product Variants.
+    @UseGuards(AuthGuard)
+    @Put('admin/product-variants/:id')
+    async updateVariants(
+        @Param('id') id: string,
+        @Body() body: ProductVariantsUpdateDTO
+    ) {
+        if (!isUUID(id)) {
+            throw new BadRequestException('Invalid UUID format');
+        }
+        const product = await this.productService.findOne({ id })
+        if (!product) {
+            throw new BadRequestException("Product not found")
+        }
+
+        for(let v of body.variants) {
+            const productVariant = new ProductVariation()
+            productVariant.name = v
+            productVariant.product_id = product.id
+            await this.productVariantService.create(productVariant)
+        }
+
+        return this.productVariantService.find({ product_id: id });
     }
 
     // * Update Product Images.
@@ -127,9 +159,14 @@ export class ProductController {
         // * Find the related images
         const findImages = await this.productImageService.find({ productId: id });
 
-        // * Delete the related images
+        // * Delete the multiple images
         for (const image of findImages) {
-            await this.productImageService.delete(image.productId);
+            await this.productImageService.deleteMultipleImages(image.productId);
+        }
+
+        // * Delete the related images
+        for (const variant of findImages) {
+            await this.productVariantService.deleteMultipleVariants(variant.productId);
         }
 
         // * Delete the product
@@ -143,4 +180,10 @@ export class ProductController {
         return this.productImageService.delete(id);
     }
 
+    // * Delete Product Variant
+    @UseGuards(AuthGuard)
+    @Delete('admin/product-variants/:id')
+    async deleteVariants(@Param('id') id: string) {
+        return this.productVariantService.delete(id);
+    }
 }

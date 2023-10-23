@@ -1,5 +1,7 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ProductImages } from "./product.images";
+import { ProductVariation } from "./product-variation.entity";
+import { ProductVariantService } from "../product-variant.service";
 
 @Entity('products')
 export class Product {
@@ -29,4 +31,7 @@ export class Product {
 
   @OneToMany(() => ProductImages, productImages => productImages.product, { cascade: true })
   product_images: ProductImages[];
+
+  @OneToMany(() => ProductVariation, (variant) => variant.product)
+  variant: ProductVariation[];
 }

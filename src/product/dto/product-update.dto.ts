@@ -1,5 +1,3 @@
-import { ArrayNotEmpty, ArrayMinSize, IsString } from "class-validator";
-
 export class ProductUpdateDto {
     title?: string;
 
@@ -7,5 +5,5 @@ export class ProductUpdateDto {
 
     image?: string;
 
-    price?: number
+    price?: number;
 }

@@ -12,7 +12,7 @@ export class ProductImagesService extends AbstractService {
     ) {
         super(productImagesRepository)
     }
-    async delete(productId: string): Promise<any> {
+    async deleteMultipleImages(productId: string): Promise<any> {
         return this.productImagesRepository.delete({ productId });
     }
 }
