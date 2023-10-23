@@ -10,6 +10,7 @@ import { CreateOrderDto } from './dto/create.dto';
 import { OrderItem } from './models/order-item.entity';
 import { Cart } from 'src/cart/models/cart.entity';
 import { CartService } from 'src/cart/cart.service';
+import { DataSource } from 'typeorm';
 
 @Controller()
 export class OrderController {
@@ -18,9 +19,9 @@ export class OrderController {
         private orderItemService: OrderItemService,
         private authService: AuthService,
         private userService: UserService,
-        private productService: ProductService,
+        private dataSource: DataSource,
         private cartService: CartService
-    ) {}
+    ) { }
 
     @Post('checkout/orders')
     async create(
@@ -32,32 +33,46 @@ export class OrderController {
 
         const user = await this.userService.findOne({ id: userId });
 
-        const o = new Order()
-        o.name = user.fullName
-        o.email = user.email
-        o.user_id = userId
+        const queryRunner = this.dataSource.createQueryRunner();
+        try {
+            await queryRunner.connect();
+            await queryRunner.startTransaction();
 
-        const order = await this.orderService.create(o)
-        
-        for (let c of body.carts) {
-            const cart: Cart[] = await this.cartService.find({ id: c.cart_id, user_id: userId });
-        
-            if (cart.length === 0) {
-                throw new NotFoundException("Cart not found");
+            const o = new Order()
+            o.name = user.fullName
+            o.email = user.email
+            o.user_id = userId
+
+            const order = await queryRunner.manager.save(o);
+
+            for (let c of body.carts) {
+                const cart: Cart[] = await this.cartService.find({ id: c.cart_id, user_id: userId });
+
+                if (cart.length === 0) {
+                    throw new NotFoundException("Cart not found");
+                }
+
+                const orderItem = new OrderItem();
+                orderItem.order = order;
+                orderItem.product_title = cart[0].product_title;
+                orderItem.price = cart[0].price;
+                orderItem.quantity = cart[0].quantity;
+                orderItem.product_id = cart[0].product_id
+
+                await queryRunner.manager.save(orderItem);
             }
-        
-            const orderItem = new OrderItem();
-            orderItem.order = order.id;
-            orderItem.product_title = cart[0].product_title;
-            orderItem.price = cart[0].price;
-            orderItem.quantity = cart[0].quantity;
-            orderItem.product_id = cart[0].product_id
-        
-            await this.orderItemService.create(orderItem);
+            await queryRunner.manager.save(order);
+
+            await queryRunner.commitTransaction();
+            return {
+                message: "Your order has been created!"
+            };
+        } catch (err) {
+            await queryRunner.rollbackTransaction();
+            throw new BadRequestException();
+        } finally {
+            await queryRunner.release();
         }
-        
-        return {
-            message: "Your order has been created!"
-        };
+
     }
 }
