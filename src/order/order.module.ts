@@ -9,6 +9,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { OrderItemService } from './order-item.service';
 import { UserModule } from 'src/user/user.module';
 import { ProductModule } from 'src/product/product.module';
+import { CartModule } from 'src/cart/cart.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { ProductModule } from 'src/product/product.module';
     CommonModule,
     AuthModule,
     UserModule,
-    ProductModule
+    ProductModule,
+    CartModule
   ],
   providers: [OrderService, OrderItemService],
   controllers: [OrderController]

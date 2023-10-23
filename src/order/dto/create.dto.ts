@@ -1,6 +1,5 @@
 export class CreateOrderDto {
-    products: {
-        product_id: string;
-        quantity: number;
+    carts: {
+        cart_id: string;
     }[]
 }

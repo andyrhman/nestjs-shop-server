@@ -20,6 +20,7 @@ export class CartController {
         @Req() request: Request
     ){
         const user = await this.authService.userId(request);
+        const productQuantity = await this.cartService.findOne({product_id: body.product_id});
         const c = new Cart();
         c.product_title = body.product_title;
         c.quantity = body.quantity;
