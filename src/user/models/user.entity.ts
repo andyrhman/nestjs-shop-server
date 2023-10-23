@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGenerated
 import { Exclude } from "class-transformer";
 import { Address } from "src/address/models/address.entity";
 import { Order } from "src/order/models/order.entity";
+import { Cart } from "src/cart/models/cart.entity";
 
 @Entity('users')
 export class User{
@@ -35,4 +36,7 @@ export class User{
 
     @OneToMany(() => Order, (order) => order.user)
     orders: Order[];
+
+    @OneToMany(() => Cart, (cart) => cart.user)
+    cart: Cart[];  
 }

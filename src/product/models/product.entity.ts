@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, Pri
 import { ProductImages } from "./product.images";
 import { ProductVariation } from "./product-variation.entity";
 import { Category } from "src/category/models/category.entity";
+import { Cart } from "src/cart/models/cart.entity";
 
 @Entity('products')
 export class Product {
@@ -37,6 +38,9 @@ export class Product {
 
   @OneToMany(() => ProductVariation, (variant) => variant.product)
   variant: ProductVariation[];
+
+  @OneToMany(() => Cart, (cart) => cart.product)
+  cart: Cart[];
 
   @ManyToOne(() => Category, (category) => category.product)
   @JoinColumn({name: "category_id"})
