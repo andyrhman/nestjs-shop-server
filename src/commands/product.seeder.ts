@@ -25,13 +25,13 @@ const bootstrap = async () => {
             strict: true,
             trim: true
         });
-        // * For the product
+        // * For the product.
         const product = await productService.create({
             title: title,
             slug: slug,
             description: faker.commerce.productDescription(),
             image: faker.image.urlLoremFlickr({ width: 200, height: 200, category: 'food' }),
-            price: faker.commerce.price({ min: 100, max: 1000, dec: 0 }),
+            price: faker.commerce.price({ min: 100000, max: 5000000, dec: 0 }),
             category_id: categories[i % categories.length].id
         });
         // * For the product images

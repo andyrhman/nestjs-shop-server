@@ -2,7 +2,7 @@ import { Expose } from "class-transformer";
 import { User } from "src/user/models/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { OrderItem } from "./order-item.entity";
-
+import { Cart } from "src/cart/models/cart.entity";
 @Entity('orders')
 export class Order {
     @PrimaryGeneratedColumn('uuid')
@@ -29,6 +29,9 @@ export class Order {
 
     @OneToMany(() => OrderItem, orderItem => orderItem.order)
     order_items: OrderItem[];
+
+    @OneToMany(() => Cart, cart => cart.order)
+    cart: Cart[];
 
     // * Getting the total price
     @Expose()

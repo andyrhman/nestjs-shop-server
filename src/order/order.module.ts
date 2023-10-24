@@ -11,6 +11,7 @@ import { UserModule } from 'src/user/user.module';
 import { ProductModule } from 'src/product/product.module';
 import { CartModule } from 'src/cart/cart.module';
 import { AddressModule } from 'src/address/address.module';
+import { StripeModule } from '@golevelup/nestjs-stripe';
 
 @Module({
   imports: [
@@ -20,7 +21,11 @@ import { AddressModule } from 'src/address/address.module';
     UserModule,
     ProductModule,
     CartModule,
-    AddressModule
+    AddressModule,
+    StripeModule.forRoot(StripeModule, {
+      apiKey: process.env.STRIPE_API_KEY,
+      apiVersion: '2023-10-16'
+    }),
   ],
   providers: [OrderService, OrderItemService],
   controllers: [OrderController]

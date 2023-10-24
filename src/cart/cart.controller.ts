@@ -14,6 +14,8 @@ export class CartController {
     ) {}
 
     // * Add products to cart
+    // TODO -> If the cart is completed don't increment the quantity
+    // TODO -> Fix it by creating another cart
     @Post()
     async create(
         @Body() body: CreateCartDTO,
@@ -44,7 +46,7 @@ export class CartController {
         @Req() request: Request
     ){
         const user = await this.authService.userId(request);
-        const cart = await this.cartService.find({user_id: user});
+        const cart = await this.cartService.find({user_id: user}, ['order']);
         if (!cart) {
             throw new NotFoundException()
         }

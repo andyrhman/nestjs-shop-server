@@ -1,4 +1,4 @@
-import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Get, NotFoundException, Param, Post, Put, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, ForbiddenException, Get, NotFoundException, Param, Post, Put, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { OrderItemService } from './order-item.service';
 import { AuthService } from 'src/auth/auth.service';
@@ -14,6 +14,9 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { ChangeStatusDTO } from './dto/change-status.dto';
 import { AddressService } from 'src/address/address.service';
 import { isUUID } from 'class-validator';
+import { InjectStripeClient } from '@golevelup/nestjs-stripe';
+import Stripe from 'stripe';
+import { ConfigService } from '@nestjs/config';
 
 @Controller()
 export class OrderController {
@@ -24,7 +27,9 @@ export class OrderController {
         private userService: UserService,
         private dataSource: DataSource,
         private cartService: CartService,
-        private addressService: AddressService
+        private addressService: AddressService,
+        private configService: ConfigService,
+        @InjectStripeClient() private readonly stripeClient: Stripe,
     ) { }
 
     // * Get all orders
@@ -78,11 +83,14 @@ export class OrderController {
 
             const order = await queryRunner.manager.save(o);
 
+            // * Stripe.
+            const line_items = [];
+
             for (let c of body.carts) {
                 if (!isUUID(c.cart_id)) {
                     throw new BadRequestException('Invalid UUID format');
                 }
-                const cart: Cart[] = await this.cartService.find({ id: c.cart_id, user_id: userId });
+                const cart: Cart[] = await this.cartService.find({ id: c.cart_id, user_id: userId }, ['product']);
 
                 if (cart.length === 0) {
                     throw new NotFoundException("Cart not found.");
@@ -95,24 +103,77 @@ export class OrderController {
                 orderItem.product_title = cart[0].product_title;
                 orderItem.price = cart[0].price;
                 orderItem.quantity = cart[0].quantity;
-                orderItem.product_id = cart[0].product_id
+                orderItem.product_id = cart[0].product_id;
 
-                cart[0].completed = true;
+                cart[0].order_id = order.id;
                 await queryRunner.manager.update(Cart, cart[0].id, cart[0]);
 
                 await queryRunner.manager.save(orderItem);
+
+                // * Stripe
+                line_items.push({
+                    price_data: {
+                        currency: 'idr',
+                        unit_amount: cart[0].price,
+                        product_data: {
+                            name: cart[0].product_title,
+                            description: cart[0].product.description,
+                            images: [
+                                `${cart[0].product.image}`
+                            ]
+                        },
+                    },
+                    quantity: cart[0].quantity
+                })
             }
+            // * Stripe
+            const source = await this.stripeClient.checkout.sessions.create({
+                payment_method_types: ['card'],
+                mode: 'payment',
+                line_items,
+                success_url: `${this.configService.get('CHECKOUT_URL')}/success?source={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${this.configService.get('CHECKOUT_URL')}/error`,
+            })
+
+            order.transaction_id = source['id'];
             await queryRunner.manager.save(order);
 
             await queryRunner.commitTransaction();
-            return {
-                message: "Your order has been created!"
-            };
+            return source;
         } catch (err) {
             await queryRunner.rollbackTransaction();
+            console.log(err)
             throw new BadRequestException(err.response);
         } finally {
             await queryRunner.release();
+        }
+    }
+
+    // * Confirm the orders, change the cart completed to true
+    // ? https://www.phind.com/search?cache=ysffjxsftr8fhurcj8u7bx6u
+    @Post('checkout/orders/confirm')
+    async confirm(
+        @Body('source') source: string,
+        @Req() request: Request
+    ){
+        const user = await this.authService.userId(request)
+        const order = await this.orderService.findOne({
+            transaction_id: source,
+        }, ['user','order_items']);
+
+        if (!order) {
+            throw new NotFoundException("Order not found")
+        }
+        const carts: Cart[] = await this.cartService.find({order_id: order.id, user_id: user});
+        if (carts.length === 0) {
+            throw new ForbiddenException()
+        }
+        for (let cart of carts) {
+            await this.cartService.update(cart.id, {completed: true});
+        }
+
+        return {
+            message: 'success'
         }
     }
 
