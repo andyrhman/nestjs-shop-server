@@ -8,6 +8,9 @@ export class Order {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
+    @Column({ nullable: true })
+    transaction_id: string;
+
     @Column()
     name: string;
 

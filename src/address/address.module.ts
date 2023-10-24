@@ -14,6 +14,7 @@ import { AuthModule } from 'src/auth/auth.module';
     AuthModule,
   ],
   controllers: [AddressController],
-  providers: [AddressService]
+  providers: [AddressService],
+  exports: [AddressService]
 })
 export class AddressModule {}

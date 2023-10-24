@@ -1,16 +1,19 @@
-import { BadRequestException, Body, Controller, NotFoundException, Post, Req } from '@nestjs/common';
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Get, NotFoundException, Param, Post, Put, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { OrderItemService } from './order-item.service';
 import { AuthService } from 'src/auth/auth.service';
 import { Request } from 'express';
 import { UserService } from 'src/user/user.service';
-import { ProductService } from 'src/product/product.service';
 import { Order } from './models/order.entity';
 import { CreateOrderDto } from './dto/create.dto';
 import { OrderItem } from './models/order-item.entity';
 import { Cart } from 'src/cart/models/cart.entity';
 import { CartService } from 'src/cart/cart.service';
 import { DataSource } from 'typeorm';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { ChangeStatusDTO } from './dto/change-status.dto';
+import { AddressService } from 'src/address/address.service';
+import { isUUID } from 'class-validator';
 
 @Controller()
 export class OrderController {
@@ -20,9 +23,35 @@ export class OrderController {
         private authService: AuthService,
         private userService: UserService,
         private dataSource: DataSource,
-        private cartService: CartService
+        private cartService: CartService,
+        private addressService: AddressService
     ) { }
 
+    // * Get all orders
+    @UseInterceptors(ClassSerializerInterceptor)
+    @UseGuards(AuthGuard)
+    @Get('admin/orders')
+    async all(
+        @Req() request: Request
+    ) {
+        let orders = await this.orderService.find({}, ['order_items'])
+        if (request.query.search) {
+            const search = request.query.search.toString().toLowerCase();
+            orders = orders.filter(order => {
+                const orderMatches = order.order_items.some(orderItem => {
+                    return orderItem.product_title.toLowerCase().includes(search);
+                });
+                return (
+                    order.name.toLowerCase().includes(search) ||
+                    order.email.toLowerCase().includes(search) ||
+                    orderMatches
+                );
+            });
+        }
+        return orders;
+    }
+
+    // * Checkout orders
     @Post('checkout/orders')
     async create(
         @Req() request: Request,
@@ -32,6 +61,10 @@ export class OrderController {
         const userId = await this.authService.userId(request);
 
         const user = await this.userService.findOne({ id: userId });
+        const address = await this.addressService.findOne({ user_id: userId });
+        if (!address) {
+            throw new BadRequestException("Please create your shipping address first.")
+        }
 
         const queryRunner = this.dataSource.createQueryRunner();
         try {
@@ -46,18 +79,26 @@ export class OrderController {
             const order = await queryRunner.manager.save(o);
 
             for (let c of body.carts) {
+                if (!isUUID(c.cart_id)) {
+                    throw new BadRequestException('Invalid UUID format');
+                }
                 const cart: Cart[] = await this.cartService.find({ id: c.cart_id, user_id: userId });
 
                 if (cart.length === 0) {
-                    throw new NotFoundException("Cart not found");
+                    throw new NotFoundException("Cart not found.");
                 }
-
+                if (cart[0].completed === true) {
+                    throw new BadRequestException("Invalid order, please add new order.");
+                }
                 const orderItem = new OrderItem();
                 orderItem.order = order;
                 orderItem.product_title = cart[0].product_title;
                 orderItem.price = cart[0].price;
                 orderItem.quantity = cart[0].quantity;
                 orderItem.product_id = cart[0].product_id
+
+                cart[0].completed = true;
+                await queryRunner.manager.update(Cart, cart[0].id, cart[0]);
 
                 await queryRunner.manager.save(orderItem);
             }
@@ -69,10 +110,22 @@ export class OrderController {
             };
         } catch (err) {
             await queryRunner.rollbackTransaction();
-            throw new BadRequestException();
+            throw new BadRequestException(err.response);
         } finally {
             await queryRunner.release();
         }
+    }
 
+    // * Change order status
+    @UseGuards(AuthGuard)
+    @Put('admin/orders/:id')
+    async status(
+        @Param('id') id: string,
+        @Body() body: ChangeStatusDTO
+    ) {
+        if (!isUUID(id)) {
+            throw new BadRequestException('Invalid UUID format');
+        }
+        return this.orderItemService.update(id, body)
     }
 }

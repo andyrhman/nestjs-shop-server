@@ -9,8 +9,8 @@ export enum OrderItemStatus {
 
 @Entity('order_items')
 export class OrderItem {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
     @Column()
     product_title: string;

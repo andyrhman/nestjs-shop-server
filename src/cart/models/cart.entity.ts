@@ -16,6 +16,9 @@ export class Cart{
     @Column()
     price: number;
 
+    @Column({default: 'false'})
+    completed: boolean;
+
     @Column({name: "product_id"})
     product_id: string;
 
