@@ -15,18 +15,29 @@ export class CartController {
 
     // * Add products to cart
     // TODO -> If the cart is completed don't increment the quantity
-    // TODO -> Fix it by creating another cart
+    // TODO -> Fix it by creating another cart.
     @Post()
     async create(
         @Body() body: CreateCartDTO,
         @Req() request: Request
     ){
         const user = await this.authService.userId(request);
-        const existingProduct = await this.cartService.findOne({product_id: body.product_id, user_id: user});
-    
+        const existingProduct = await this.cartService.findLatestUncompletedProduct(body.product_id, user);
+        
         if (existingProduct) {
-            existingProduct.quantity += body.quantity;
-            return this.cartService.update(existingProduct.id, existingProduct);
+            if (existingProduct.completed === true) {
+                const c = new Cart();
+                c.product_title = body.product_title;
+                c.quantity = body.quantity;
+                c.price = body.price;
+                c.product_id = body.product_id;
+                c.user_id = user
+    
+                return this.cartService.create(c);
+            } else {
+                existingProduct.quantity += body.quantity;
+                return this.cartService.update(existingProduct.id, existingProduct);
+            }
         } else {
             const c = new Cart();
             c.product_title = body.product_title;
@@ -38,6 +49,7 @@ export class CartController {
             return this.cartService.create(c);
         }
     }
+    
     
 
     // * Get authenticated user products cart

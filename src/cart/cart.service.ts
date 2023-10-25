@@ -11,7 +11,18 @@ export class CartService extends AbstractService{
     ) {
         super(cartRepository)
     }
+    
     async deleteUserCart(user_id: string, cart_id: string): Promise<any> {
         return this.repository.delete({user_id: user_id, id: cart_id});
+    }
+
+    async findLatestUncompletedProduct(productId: string, userId: string) {
+        return this.cartRepository
+          .createQueryBuilder('cart')
+          .where('cart.product_id = :productId', { productId })
+          .andWhere('cart.user_id = :userId', { userId })
+          .andWhere('cart.completed = :completed', { completed: false })
+          .orderBy('cart.created_at', 'DESC')
+          .getOne();
     }
 }
