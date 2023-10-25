@@ -59,12 +59,13 @@ export class ProductController {
     }
 
     // * Get all products
-    // * https://www.phind.com/search?cache=uambrl956nwdhj9g2clkh4h8
+    // ? ✅ https://www.phind.com/search?cache=hjf92lz8rap43f6fyk0ludro
+    // ! ❌ https://www.phind.com/search?cache=uambrl956nwdhj9g2clkh4h8
     @Get('products')
     async all(
         @Req() request: Request
     ) {
-        let products = await this.productService.find({});
+        let products = await this.productService.find({}, ['variant', 'category']);
 
         if (request.query.search) {
             const search = request.query.search.toString().toLowerCase();
@@ -73,7 +74,42 @@ export class ProductController {
                     p.description.toLowerCase().indexOf(search) >= 0
             )
         }
-
+        if (request.query.filterByVariant) {
+            const filterByVariant = request.query.filterByVariant.toString().toLowerCase();
+            products = products.filter(
+                p => p.variant.some(v => v.name.toLowerCase() === filterByVariant)
+            )
+        }
+        if (request.query.filterByCategory) {
+            const filterByCategory = request.query.filterByCategory.toString().toLowerCase();
+            products = products.filter(
+                p => p.category.name.toLowerCase() === filterByCategory
+            )
+        }
+        if (request.query.sortByPrice || request.query.sortByDate) {
+            const sortByPrice = request.query.sortByPrice?.toString().toLowerCase();
+            const sortByDate = request.query.sortByDate?.toString().toLowerCase();
+    
+            products.sort((a, b) => {
+                if (sortByPrice) {
+                    if (sortByPrice === 'asc') {
+                        return b.price - a.price;
+                    } else {
+                        return a.price - b.price;
+                    }
+                }
+    
+                if (sortByDate) {
+                    if (sortByDate === 'newest') {
+                        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                    } else {
+                        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                    }
+                }
+    
+                return 0;
+            });
+        }
         return products;
     }
 

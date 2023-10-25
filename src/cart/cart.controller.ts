@@ -37,15 +37,6 @@ export class CartController {
                 return productMatches || userMatches;
             });
         }
-        if (request.query.sort === 'newest' || request.query.sort === 'oldest') {
-            carts.sort((a, b) => {
-                if (request.query.sort === 'newest') {
-                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-                } else {
-                    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-                }
-            });
-        }
         if (request.query.sortByCompleted || request.query.sortByDate) {
             const sortByCompleted = request.query.sortByCompleted?.toString().toLowerCase();
             const sortByDate = request.query.sortByDate?.toString().toLowerCase();
@@ -74,7 +65,6 @@ export class CartController {
                 return 0;
             });
         }
-        
         
         return carts;
     }
