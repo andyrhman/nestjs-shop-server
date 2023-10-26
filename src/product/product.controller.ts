@@ -75,15 +75,15 @@ export class ProductController {
             )
         }
         if (request.query.filterByVariant) {
-            const filterByVariant = request.query.filterByVariant.toString().toLowerCase();
+            const filterByVariant = request.query.filterByVariant.toString().toLowerCase().split(',');
             products = products.filter(
-                p => p.variant.some(v => v.name.toLowerCase() === filterByVariant)
+                p => p.variant.some(v => filterByVariant.includes(v.name.toLowerCase()))
             )
         }
         if (request.query.filterByCategory) {
-            const filterByCategory = request.query.filterByCategory.toString().toLowerCase();
+            const filterByCategory = request.query.filterByCategory.toString().toLowerCase().split(',');
             products = products.filter(
-                p => p.category.name.toLowerCase() === filterByCategory
+                p => filterByCategory.includes(p.category.name.toLowerCase())
             )
         }
         if (request.query.sortByPrice || request.query.sortByDate) {
