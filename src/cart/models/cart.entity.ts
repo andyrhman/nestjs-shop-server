@@ -1,4 +1,5 @@
 import { Order } from "src/order/models/order.entity";
+import { ProductVariation } from "src/product/models/product-variation.entity";
 import { Product } from "src/product/models/product.entity";
 import { User } from "src/user/models/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -16,6 +17,9 @@ export class Cart{
 
     @Column()
     price: number;
+
+    @Column({name: "variant_id"})
+    variant_id: string;
 
     @Column({default: 'false'})
     completed: boolean;
@@ -43,4 +47,8 @@ export class Cart{
     @ManyToOne(() => Order, (order) => order.cart)
     @JoinColumn({name: "order_id"})
     order: Order;
+
+    @ManyToOne(() => ProductVariation, (variant) => variant.cart)
+    @JoinColumn({name: "variant_id"})
+    variant: Order;
 }

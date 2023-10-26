@@ -17,6 +17,7 @@ import { isUUID } from 'class-validator';
 import { InjectStripeClient } from '@golevelup/nestjs-stripe';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Controller()
 export class OrderController {
@@ -30,6 +31,7 @@ export class OrderController {
         private addressService: AddressService,
         private configService: ConfigService,
         @InjectStripeClient() private readonly stripeClient: Stripe,
+        private eventEmiter: EventEmitter2,
     ) { }
 
     // * Get all orders
@@ -39,7 +41,7 @@ export class OrderController {
     async all(
         @Req() request: Request
     ) {
-        let orders = await this.orderService.find({}, ['order_items'])
+        let orders = await this.orderService.find({}, ['order_items', 'order_items.product'])
         if (request.query.search) {
             const search = request.query.search.toString().toLowerCase();
             orders = orders.filter(order => {
@@ -114,7 +116,7 @@ export class OrderController {
                 line_items.push({
                     price_data: {
                         currency: 'idr',
-                        unit_amount: cart[0].price,
+                        unit_amount: 10 * cart[0].price,
                         product_data: {
                             name: cart[0].product_title,
                             description: cart[0].product.description,
@@ -159,8 +161,7 @@ export class OrderController {
         const user = await this.authService.userId(request)
         const order = await this.orderService.findOne({
             transaction_id: source,
-        }, ['user','order_items']);
-
+        }, ['user','order_items', 'order_items.product']);
         if (!order) {
             throw new NotFoundException("Order not found")
         }
@@ -171,7 +172,8 @@ export class OrderController {
         for (let cart of carts) {
             await this.cartService.update(cart.id, {completed: true});
         }
-
+        await this.orderService.update(order.id, {completed: true})
+        await this.eventEmiter.emit('order.completed', order);
         return {
             message: 'success'
         }

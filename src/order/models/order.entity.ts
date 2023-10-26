@@ -23,6 +23,9 @@ export class Order {
     @Column({ name: 'user_id' })
     user_id: string;
 
+    @Column({default: false})
+    completed: boolean;
+
     @ManyToOne(() => User, (user) => user.orders)
     @JoinColumn({ name: "user_id" })
     user: User;

@@ -70,6 +70,7 @@ export class CartController {
     }
 
     // * Add products to cart
+    // TODO -> Add also product variant to the cart and modify the checkout order
     @Post('cart')
     async create(
         @Body() body: CreateCartDTO,

@@ -12,6 +12,10 @@ import { ProductModule } from 'src/product/product.module';
 import { CartModule } from 'src/cart/cart.module';
 import { AddressModule } from 'src/address/address.module';
 import { StripeModule } from '@golevelup/nestjs-stripe';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { join } from 'path';
+import { OrderListener } from './listener/order.listener';
 
 @Module({
   imports: [
@@ -24,10 +28,28 @@ import { StripeModule } from '@golevelup/nestjs-stripe';
     AddressModule,
     StripeModule.forRoot(StripeModule, {
       apiKey: process.env.STRIPE_API_KEY,
-      apiVersion: '2023-10-16'
+      apiVersion: '2022-11-15'
+    }),
+    MailerModule.forRoot({
+      transport:{
+        // * Let docker know nodemailer run in local.
+        // ? https://www.phind.com/search?cache=rrc34g0tz9oxk331skvds3di
+        host: 'host.docker.internal',
+        port: 1025,
+      },
+      defaults: {
+        from: 'service@mail.com'
+      },
+      template: {
+        dir: join(__dirname, 'templates'),
+        adapter: new HandlebarsAdapter(),
+        options: {
+          strict: false
+        }
+      }
     }),
   ],
-  providers: [OrderService, OrderItemService],
+  providers: [OrderService, OrderItemService, OrderListener],
   controllers: [OrderController]
 })
 export class OrderModule {}

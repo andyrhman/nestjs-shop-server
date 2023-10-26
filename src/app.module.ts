@@ -10,6 +10,8 @@ import { AddressModule } from './address/address.module';
 import { OrderModule } from './order/order.module';
 import { CartModule } from './cart/cart.module';
 import { CategoryModule } from './category/category.module';
+import { ReviewModule } from './review/review.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { CategoryModule } from './category/category.module';
       autoLoadEntities: true, //delete if production
       synchronize: true,
     }),
+    EventEmitterModule.forRoot(),
     CommonModule,
     UserModule,
     AuthModule,
@@ -33,6 +36,7 @@ import { CategoryModule } from './category/category.module';
     OrderModule,
     CartModule,
     CategoryModule,
+    ReviewModule,
   ],
   controllers: [],
   providers: [],

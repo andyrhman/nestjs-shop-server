@@ -1,5 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Order } from "./order.entity";
+import { Product } from "src/product/models/product.entity";
+import { ProductVariation } from "src/product/models/product-variation.entity";
 
 export enum OrderItemStatus {
     SedangDikemas = 'Sedang Dikemas',
@@ -21,6 +23,9 @@ export class OrderItem {
     @Column()
     quantity: number;
 
+    @Column({name: "variant_id"})
+    variant_id: string;
+
     @Column({
         type: 'enum',
         enum: OrderItemStatus,
@@ -34,4 +39,12 @@ export class OrderItem {
     @ManyToOne(() => Order, order => order.order_items)
     @JoinColumn({ name: 'order_id' })
     order: Order;
+
+    @ManyToOne(() => Product, product => product.order_item)
+    @JoinColumn({ name: 'product_id' })
+    product: Product;
+
+    @ManyToOne(() => ProductVariation, (variant) => variant.order_item)
+    @JoinColumn({ name: 'variant_id' })
+    variant: ProductVariation;
 }
