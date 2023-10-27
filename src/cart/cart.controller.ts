@@ -1,10 +1,12 @@
-import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CreateCartDTO } from './dto/create.dto';
 import { Cart } from './models/cart.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { Request } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { builtinModules } from 'module';
+import { UpdateCartDto } from './dto/update.dto';
 
 @Controller()
 export class CartController {
@@ -70,37 +72,27 @@ export class CartController {
     }
 
     // * Add products to cart
-    // TODO -> Add also product variant to the cart and modify the checkout order
+    // ? Added variant code solution -> https://www.phind.com/search?cache=v3lv10sq5h4rnfsiiz6iruv1
     @Post('cart')
     async create(
         @Body() body: CreateCartDTO,
         @Req() request: Request
     ) {
         const user = await this.authService.userId(request);
-        const existingProduct = await this.cartService.findLatestUncompletedProduct(body.product_id, user);
-
-        if (existingProduct) {
-            if (existingProduct.completed === true) {
-                const c = new Cart();
-                c.product_title = body.product_title;
-                c.quantity = body.quantity;
-                c.price = body.price;
-                c.product_id = body.product_id;
-                c.user_id = user
-
-                return this.cartService.create(c);
-            } else {
-                existingProduct.quantity += body.quantity;
-                return this.cartService.update(existingProduct.id, existingProduct);
-            }
+        const existingCartItem = await this.cartService.findCartItemByProductAndVariant(body.product_id, body.variant_id, user);
+    
+        if (existingCartItem) {
+            existingCartItem.quantity += body.quantity;
+            return this.cartService.update(existingCartItem.id, existingCartItem);
         } else {
             const c = new Cart();
             c.product_title = body.product_title;
             c.quantity = body.quantity;
             c.price = body.price;
             c.product_id = body.product_id;
+            c.variant_id = body.variant_id;
             c.user_id = user
-
+    
             return this.cartService.create(c);
         }
     }
@@ -111,11 +103,20 @@ export class CartController {
         @Req() request: Request
     ) {
         const user = await this.authService.userId(request);
-        const cart = await this.cartService.find({ user_id: user }, ['order']);
+        const cart = await this.cartService.find({ user_id: user }, ['order', 'variant']);
         if (!cart) {
             throw new NotFoundException()
         }
         return cart;
+    }
+
+    // * Update quantity
+    @Put('cart/:id')
+    async update(
+        @Param('id') id: string,
+        @Body() body: UpdateCartDto
+    ){
+        return this.cartService.update(id, body)
     }
 
     // * Delete Cart

@@ -16,13 +16,23 @@ export class CartService extends AbstractService{
         return this.repository.delete({user_id: user_id, id: cart_id});
     }
 
-    async findLatestUncompletedProduct(productId: string, userId: string) {
+    async findCartItemByProductAndVariant(productId: string, variantId: string, userId: string) {
         return this.cartRepository
-          .createQueryBuilder('cart')
-          .where('cart.product_id = :productId', { productId })
-          .andWhere('cart.user_id = :userId', { userId })
-          .andWhere('cart.completed = :completed', { completed: false })
-          .orderBy('cart.created_at', 'DESC')
-          .getOne();
+            .createQueryBuilder('cart')
+            .where('cart.product_id = :productId', { productId })
+            .andWhere('cart.variant_id = :variantId', { variantId })
+            .andWhere('cart.user_id = :userId', { userId })
+            .andWhere('cart.completed = :completed', { completed: false })
+            .getOne();
+    }
+
+    async find(options, relations = []) {
+        const cartItems = await this.cartRepository.find({ where: options, relations });
+        // map through the cart items and calculate the total price for each item
+        const cartWithTotalPrices = cartItems.map(item => ({
+            ...item,
+            total: item.price * item.quantity
+        }));
+        return cartWithTotalPrices;
     }
 }

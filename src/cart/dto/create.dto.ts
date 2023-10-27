@@ -14,4 +14,7 @@ export class CreateCartDTO{
 
     @IsNotEmpty()
     product_id: string;
+
+    @IsNotEmpty()
+    variant_id: string;
 }
