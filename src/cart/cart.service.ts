@@ -26,12 +26,12 @@ export class CartService extends AbstractService{
             .getOne();
     }
 
-    async find(options, relations = []) {
+    async findUserCart(options, relations = []) {
         const cartItems = await this.cartRepository.find({ where: options, relations });
         // map through the cart items and calculate the total price for each item
         const cartWithTotalPrices = cartItems.map(item => ({
             ...item,
-            total: item.price * item.quantity
+            total_price: item.price * item.quantity
         }));
         return cartWithTotalPrices;
     }

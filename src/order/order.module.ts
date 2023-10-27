@@ -32,13 +32,13 @@ import { OrderListener } from './listener/order.listener';
     }),
     MailerModule.forRoot({
       transport:{
-        // * Let docker know nodemailer run in local.
-        // ? https://www.phind.com/search?cache=rrc34g0tz9oxk331skvds3di
-        host: 'host.docker.internal',
-        port: 1025,
-      },
-      defaults: {
-        from: 'service@mail.com'
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT, 10),
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USERNAME,
+          pass: process.env.SMTP_PASSWORD,
+        },
       },
       template: {
         dir: join(__dirname, 'templates'),

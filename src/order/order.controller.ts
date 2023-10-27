@@ -92,7 +92,7 @@ export class OrderController {
                 if (!isUUID(c.cart_id)) {
                     throw new BadRequestException('Invalid UUID format');
                 }
-                const cart: Cart[] = await this.cartService.find({ id: c.cart_id, user_id: userId }, ['product']);
+                const cart: Cart[] = await this.cartService.find({ id: c.cart_id, user_id: userId }, ['product', 'variant']);
 
                 if (cart.length === 0) {
                     throw new NotFoundException("Cart not found.");
@@ -106,6 +106,7 @@ export class OrderController {
                 orderItem.price = cart[0].price;
                 orderItem.quantity = cart[0].quantity;
                 orderItem.product_id = cart[0].product_id;
+                orderItem.variant_id = cart[0].variant_id;
 
                 cart[0].order_id = order.id;
                 await queryRunner.manager.update(Cart, cart[0].id, cart[0]);
@@ -118,7 +119,7 @@ export class OrderController {
                         currency: 'idr',
                         unit_amount: 10 * cart[0].price,
                         product_data: {
-                            name: cart[0].product_title,
+                            name: `${cart[0].product_title} - Variant ${cart[0].variant.name}`,
                             description: cart[0].product.description,
                             images: [
                                 `${cart[0].product.image}`
@@ -161,7 +162,7 @@ export class OrderController {
         const user = await this.authService.userId(request)
         const order = await this.orderService.findOne({
             transaction_id: source,
-        }, ['user','order_items', 'order_items.product']);
+        }, ['user','order_items', 'order_items.product', 'order_items.variant']);
         if (!order) {
             throw new NotFoundException("Order not found")
         }

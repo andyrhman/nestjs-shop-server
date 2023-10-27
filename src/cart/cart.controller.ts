@@ -5,7 +5,6 @@ import { Cart } from './models/cart.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { Request } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { builtinModules } from 'module';
 import { UpdateCartDto } from './dto/update.dto';
 
 @Controller()
@@ -103,7 +102,7 @@ export class CartController {
         @Req() request: Request
     ) {
         const user = await this.authService.userId(request);
-        const cart = await this.cartService.find({ user_id: user }, ['order', 'variant']);
+        const cart = await this.cartService.findUserCart({ user_id: user }, ['order', 'variant']);
         if (!cart) {
             throw new NotFoundException()
         }

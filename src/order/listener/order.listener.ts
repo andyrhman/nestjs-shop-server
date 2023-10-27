@@ -15,6 +15,7 @@ export class OrderListener{
         const orderTotal = `Rp${new Intl.NumberFormat('id-ID').format(order.total)}`;
         const products = order.order_items.map(item => ({
             title: item.product_title,
+            variant: item.variant.name,
             price: `Rp${new Intl.NumberFormat('id-ID').format(item.price)}`,
             quantity: item.quantity,
             image: item.product.image
