@@ -22,7 +22,7 @@ export class OrderListener{
         }));
     
         await this.mailerService.sendMail({
-            to: 'akunanimeke13@gmail.com',
+            to: 'andyrhmnn@gmail.com',
             subject: 'An order has been completed',
             template: '/var/nest-shop-server/src/order/templates/order',
             context: {

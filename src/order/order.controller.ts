@@ -58,7 +58,7 @@ export class OrderController {
         return orders;
     }
 
-    // * Checkout orders
+    // * Checkout orders.
     @Post('checkout/orders')
     async create(
         @Req() request: Request,
