@@ -3,6 +3,7 @@ import { Exclude } from "class-transformer";
 import { Address } from "src/address/models/address.entity";
 import { Order } from "src/order/models/order.entity";
 import { Cart } from "src/cart/models/cart.entity";
+import { Token } from "./token.entity";
 
 @Entity('users')
 export class User{
@@ -25,6 +26,9 @@ export class User{
     @Column({default: true})
     is_user: boolean;
 
+    @Column({default: false})
+    is_verified: boolean;
+
     @CreateDateColumn()
     created_at: string;
 
@@ -39,4 +43,7 @@ export class User{
 
     @OneToMany(() => Cart, (cart) => cart.user)
     cart: Cart[];  
+
+    @OneToMany(() => Token, (cart) => cart.user)
+    verify: Token[];  
 }

@@ -12,9 +12,6 @@ import { ProductModule } from 'src/product/product.module';
 import { CartModule } from 'src/cart/cart.module';
 import { AddressModule } from 'src/address/address.module';
 import { StripeModule } from '@golevelup/nestjs-stripe';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { join } from 'path';
 import { OrderListener } from './listener/order.listener';
 
 @Module({
@@ -30,24 +27,24 @@ import { OrderListener } from './listener/order.listener';
       apiKey: process.env.STRIPE_API_KEY,
       apiVersion: '2022-11-15'
     }),
-    MailerModule.forRoot({
-      transport:{
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT, 10),
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USERNAME,
-          pass: process.env.SMTP_PASSWORD,
-        },
-      },
-      template: {
-        dir: join(__dirname, 'templates'),
-        adapter: new HandlebarsAdapter(),
-        options: {
-          strict: false
-        }
-      }
-    }),
+    // MailerModule.forRoot({
+    //   transport:{
+    //     host: process.env.SMTP_HOST,
+    //     port: parseInt(process.env.SMTP_PORT, 10),
+    //     secure: process.env.SMTP_SECURE === 'true',
+    //     auth: {
+    //       user: process.env.SMTP_USERNAME,
+    //       pass: process.env.SMTP_PASSWORD,
+    //     },
+    //   },
+    //   template: {
+    //     dir: join(__dirname, 'templates'),
+    //     adapter: new HandlebarsAdapter(),
+    //     options: {
+    //       strict: false
+    //     }
+    //   }
+    // }),
   ],
   providers: [OrderService, OrderItemService, OrderListener],
   controllers: [OrderController]

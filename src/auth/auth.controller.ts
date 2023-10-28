@@ -6,6 +6,7 @@ import {
     Controller,
     Get,
     NotFoundException,
+    Param,
     Post,
     Put,
     Req,
@@ -21,15 +22,67 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { Request, Response } from 'express';
 import { AuthGuard } from './auth.guard';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { TokenService } from 'src/user/token.service';
+import { MailerService } from '@nestjs-modules/mailer';
+import * as crypto from 'crypto';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller()
 export class AuthController {
+    private readonly TOKEN_EXPIRATION = 30 * 60 * 1000;
     constructor(
         private userService: UserService,
+        private tokenService: TokenService,
         private jwtService: JwtService,
-        private authService: AuthService
+        private authService: AuthService,
+        private eventEmiter: EventEmitter2,
+        private mailerService: MailerService,
     ) { }
+
+    // * Resend verify token
+    @Post('verify')
+    async resend(
+        @Body('email') email: string
+    ){ 
+        if (!email) {
+            throw new BadRequestException("Provide your email address")
+        }
+
+        const user = await this.userService.findOne({email: email});
+        if (!user) {
+            throw new BadRequestException("Email not found")
+        }
+        if (user.is_verified) {
+            throw new NotFoundException('Your account had already verified');
+        }
+        const token = crypto.randomBytes(16).toString('hex');
+        const tokenExpiresAt = Date.now() + this.TOKEN_EXPIRATION;
+
+        // Save the reset token and expiration time
+        await this.tokenService.create({ 
+            token, 
+            email: user.email,
+            user_id: user.id,
+            expiresAt: tokenExpiresAt
+        })
+
+        const url = `http://localhost:8000/api/verify/${token}`;
+
+        const name = user.fullName
+    
+        await this.mailerService.sendMail({
+            to: user.email,
+            subject: 'Verify your email',
+            template: '/var/nest-shop-server/src/auth/templates/auth',
+            context: {
+                name,
+                url
+            },
+        });
+
+        return user;
+    }
 
     // * Register user
     @Post('user/register')
@@ -55,12 +108,46 @@ export class AuthController {
         // Hash Password
         const hashPassword = await argon2.hash(body.password);
 
-        return this.userService.create({
+        const user = await this.userService.create({
             ...data,
             username: body.username.toLowerCase(),
             email: body.email.toLowerCase(),
             password: hashPassword
         });
+
+        await this.eventEmiter.emit('user.created', user)
+    }
+
+    // * Verify account
+    @Put('verify/:token')
+    async verify(
+        @Param('token') token: string
+    ) {
+        const userToken = await this.tokenService.findByTokenExpiresAt(token);
+        if (!userToken) {
+            throw new NotFoundException('Invalid verify ID');
+        }
+
+        if (userToken.used) {
+            throw new BadRequestException('Verify ID has already been used');
+        }
+
+        const user = await this.userService.findOne({ email: userToken.email, id: userToken.user_id });
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        if (user.is_verified) {
+            throw new NotFoundException('Your account had already verified');
+        }
+
+        if (user.email !== userToken.email && user.id !== userToken.user_id) {
+            throw new BadRequestException('Invalid Verify ID or email');
+        }
+
+        await this.tokenService.update(userToken.id, { used: true });
+        await this.userService.update(user.id, { is_verified: true })
+
+        return { message: 'Account verified successfully' };
     }
 
     // * Login User
@@ -77,14 +164,17 @@ export class AuthController {
 
         // Check whether to find the user by email or username based on input.
         if (email) {
-            user = await this.userService.findByEmail(email);
+            user = await this.userService.findOne({ email: email });
         } else {
-            user = await this.userService.findByUsername(username);
+            user = await this.userService.findOne({ username: username });
         }
 
         // If user doesn't exist, throw a BadRequestException indicating invalid credentials.
         if (!user) {
             throw new BadRequestException('Username or Email is Invalid');
+        }
+        if (user.is_verified === false) {
+            throw new BadRequestException('Please verfiy your email first, before log in.');
         }
 
         if (!await argon2.verify(user.password, password)) {
