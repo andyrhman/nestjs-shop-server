@@ -16,6 +16,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { ResetModule } from './reset/reset.module';
+import { StatisticModule } from './statistic/statistic.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { ResetModule } from './reset/reset.module';
     CategoryModule,
     ReviewModule,
     ResetModule,
+    StatisticModule,
   ],
   controllers: [],
   providers: [],

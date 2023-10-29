@@ -35,4 +35,18 @@ export class CartService extends AbstractService{
         }));
         return cartWithTotalPrices;
     }
+
+    async chart(): Promise<any[]> {
+        const query = `
+            SELECT
+            TO_CHAR(c.created_at, 'YYYY-MM-DD') as date,
+            REPLACE(TO_CHAR(TRUNC(sum(c.quantity)), 'FM999G999G999'), ',', '') as sum
+            FROM carts c
+            GROUP BY TO_CHAR(c.created_at, 'YYYY-MM-DD')
+            ORDER BY TO_CHAR(c.created_at, 'YYYY-MM-DD') ASC;      
+        `;
+
+        const result = await this.cartRepository.query(query);
+        return result;
+    }
 }
