@@ -26,7 +26,7 @@ export class TokenListener{
             expiresAt: tokenExpiresAt
         })
 
-        const url = `http://localhost:8000/api/verify/${token}`;
+        const url = `http://localhost:3000/api/verify/${token}`;
 
         const name = user.fullName
     

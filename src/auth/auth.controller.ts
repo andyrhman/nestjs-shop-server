@@ -26,6 +26,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TokenService } from 'src/user/token.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import * as crypto from 'crypto';
+import { OAuth2Client } from 'google-auth-library';
+import * as FB from 'fb';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller()
@@ -67,7 +69,7 @@ export class AuthController {
             expiresAt: tokenExpiresAt
         })
 
-        const url = `http://localhost:8000/api/verify/${token}`;
+        const url = `http://localhost:3000/api/verify/${token}`;
 
         const name = user.fullName
     
@@ -309,5 +311,135 @@ export class AuthController {
         return {
             message: "success"
         }
+    }
+
+    // * Google Login
+    @Post('login/google-auth')
+    async googleAuth(
+        @Body('token') token: string,
+        @Body() body: any,
+        @Req() request: Request,
+        @Res({ passthrough: true }) response: Response
+    ) {
+        const clientId = process.env.GOOGLE_CLIENT
+        const client = new OAuth2Client(clientId);
+
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: clientId
+        });
+
+        const googleUser = ticket.getPayload();
+
+        if (!googleUser) {
+            throw new UnauthorizedException();
+        }
+
+        let user = await this.userService.findOne({ email: googleUser.email });
+
+        if (!user) {
+            // Generate a random username and password
+            const randomUsername = `user${Math.floor(Math.random() * 1000)}`;
+            const randomPassword = Math.random().toString(36).slice(-10);
+            const hashedPassword = await argon2.hash(randomPassword);
+
+            // Generate a random 10-character password
+            user = await this.userService.create({
+                fullName: randomUsername,
+                username: randomUsername,
+                email: googleUser.email,
+                password: hashedPassword
+            });
+        }
+        // Extract the 'rememberMe' field from the request body
+        const { rememberMe } = body;
+
+        // Calculate the expiration time for the refresh token
+        // Generate a refresh token using the JWT service with the calculated expiration time.
+        const refreshTokenExpiration = rememberMe
+            ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // 1 year from now
+            : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Adding 7 days in milliseconds
+
+        const jwt = await this.jwtService.signAsync({
+            id: user.id
+        });
+
+        response.cookie('my_session', jwt, {
+            httpOnly: true,
+            expires: refreshTokenExpiration,
+        });
+        response.status(200);
+
+        return jwt;
+    }
+
+    // * Facebook Login.
+    // ? https://www.phind.com/search?cache=nvhut4107pp5k79esi10xkfm
+    // ? https://www.phind.com/search?cache=va6l733m51m1evdgu52i5wwt
+    @Post('login/facebook-auth')
+    async facebookAuth(
+        @Body('token') token: string,
+        @Body() body: any,
+        @Req() request: Request,
+        @Res({ passthrough: true }) response: Response
+    ) {
+        const appId = process.env.FACEBOOK_APP_ID;
+        const clientSecret = process.env.FACEBOOK_CLIENT_SECRET;
+
+        FB.options({
+            appId: appId,
+            appSecret: clientSecret,
+            version: 'v11.0'
+        });
+
+        const jwt = await new Promise((resolve, reject) => {
+            FB.api('me', { fields: ['id', 'name', 'email'], access_token: token }, async (res) => {
+                if (!res || res.error) {
+                    console.log(!res ? 'error occurred' : res.error);
+                    reject(new UnauthorizedException());
+                    return;
+                }
+
+                let user = await this.userService.findOne({ email: res.email });
+
+                if (!user) {
+                    const randomUsername = `user${Math.floor(Math.random() * 1000)}`;
+                    const randomPassword = Math.random().toString(36).slice(-10);
+                    const hashedPassword = await argon2.hash(randomPassword);
+
+                    user = await this.userService.create({
+                        fullName: randomUsername,
+                        username: randomUsername,
+                        email: res.email,
+                        password: hashedPassword
+                    });
+                }
+
+                const { rememberMe } = body;
+                const refreshTokenExpiration = rememberMe
+                    ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // 1 year from now
+                    : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Adding 7 days in milliseconds
+
+                const adminLogin = request.path === '/api/admin/login';
+
+                if (user.is_ambassador && adminLogin) {
+                    throw new UnauthorizedException()
+                }
+
+                const jwt = await this.jwtService.signAsync({
+                    id: user.id,
+                    scope: adminLogin ? 'admin' : 'ambassador'
+                });
+
+                response.cookie('my_session', jwt, {
+                    httpOnly: true,
+                    expires: refreshTokenExpiration,
+                });
+
+                resolve(jwt);
+            });
+        });
+
+        return jwt;
     }
 }

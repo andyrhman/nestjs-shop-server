@@ -20,7 +20,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:4000', 'http://localhost:5000'],
+    origin: ['http://localhost:3000', 'http://localhost:4000'],
     credentials: true //passing cookie back and forth in every request remove {passtrough: true}
   });
 
