@@ -19,9 +19,20 @@ export class ReviewController {
     ) {}
 
     @UseGuards(AuthGuard)
-    @Get('admin/review')
-    async get(){
-        return this.reviewService.find({})
+    @Get('admin/reviews')
+    async get(
+        @Req() request: Request
+    ){
+        let reviews =  await this.reviewService.find({}, ['product'])
+
+        if (request.query.search) {
+            const search = request.query.search.toString().toLowerCase();
+            reviews = reviews.filter(
+                p => p.product.title.toLowerCase().indexOf(search) >= 0 ||
+                    p.product.description.toLowerCase().indexOf(search) >= 0
+            )
+        }
+        return reviews;
     }
 
     // * Create user review.
