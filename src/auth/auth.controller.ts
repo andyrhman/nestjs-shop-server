@@ -30,7 +30,7 @@ import * as crypto from 'crypto';
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller()
 export class AuthController {
-    private readonly TOKEN_EXPIRATION = 30 * 60 * 1000;
+    private readonly TOKEN_EXPIRATION = 1 * 60 * 1000;
     constructor(
         private userService: UserService,
         private tokenService: TokenService,

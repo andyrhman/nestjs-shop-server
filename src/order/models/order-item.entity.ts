@@ -33,6 +33,9 @@ export class OrderItem {
     })
     status: OrderItemStatus;
 
+    @Column({name: "order_id"})
+    order_id: string;
+
     @Column({name: "product_id"})
     product_id: string;
 

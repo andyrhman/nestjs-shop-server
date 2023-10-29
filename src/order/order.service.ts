@@ -11,4 +11,7 @@ export class OrderService extends AbstractService{
     ) {
         super(orderRepository)
     }
+    async findCompletedOrdersByUser(userId: string) {
+        return this.repository.find({ where: { user_id: userId, completed: true } });
+    }
 }

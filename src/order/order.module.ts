@@ -47,6 +47,7 @@ import { OrderListener } from './listener/order.listener';
     // }),
   ],
   providers: [OrderService, OrderItemService, OrderListener],
-  controllers: [OrderController]
+  controllers: [OrderController],
+  exports: [OrderService, OrderItemService]
 })
 export class OrderModule {}

@@ -7,7 +7,7 @@ import { TokenService } from "src/user/token.service";
 
 @Injectable()
 export class TokenListener{
-    private readonly TOKEN_EXPIRATION = 30 * 60 * 1000;
+    private readonly TOKEN_EXPIRATION = 1 * 60 * 1000;
     constructor(
         private mailerService: MailerService,
         private tokenService: TokenService

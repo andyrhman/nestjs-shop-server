@@ -4,6 +4,7 @@ import { ProductVariation } from "./product-variation.entity";
 import { Category } from "src/category/models/category.entity";
 import { Cart } from "src/cart/models/cart.entity";
 import { OrderItem } from "src/order/models/order-item.entity";
+import { Review } from "src/review/models/review.entity";
 
 @Entity('products')
 export class Product {
@@ -45,6 +46,9 @@ export class Product {
 
   @OneToMany(() => OrderItem, (order_item) => order_item.product)
   order_item: OrderItem[];
+
+  @OneToMany(() => Review, (review) => review.product)
+  review: Review[];
 
   @ManyToOne(() => Category, (category) => category.product)
   @JoinColumn({name: "category_id"})

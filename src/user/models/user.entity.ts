@@ -4,6 +4,7 @@ import { Address } from "src/address/models/address.entity";
 import { Order } from "src/order/models/order.entity";
 import { Cart } from "src/cart/models/cart.entity";
 import { Token } from "./token.entity";
+import { Review } from "src/review/models/review.entity";
 
 @Entity('users')
 export class User{
@@ -46,4 +47,7 @@ export class User{
 
     @OneToMany(() => Token, (cart) => cart.user)
     verify: Token[];  
+
+    @OneToMany(() => Review, (review) => review.user)
+    review: Review[];  
 }
