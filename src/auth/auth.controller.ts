@@ -69,7 +69,7 @@ export class AuthController {
             expiresAt: tokenExpiresAt
         })
 
-        const url = `http://localhost:3000/api/verify/${token}`;
+        const url = `http://localhost:4000/api/verify/${token}`;
 
         const name = user.fullName
     

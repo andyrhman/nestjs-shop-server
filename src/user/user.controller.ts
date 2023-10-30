@@ -11,7 +11,7 @@ export class UserController {
     ) {}
 
     @Get('admin/users')
-    async ambassadors(
+    async get(
         @Req() request: Request
     ){
         let user = await this.userService.find({})

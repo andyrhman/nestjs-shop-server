@@ -38,7 +38,7 @@ export class ResetController {
             used: false, // Token is not used yet
         })
 
-        const url = `http://localhost:3000/reset/${resetToken}`;
+        const url = `http://localhost:4000/reset/${resetToken}`;
 
         await this.mailerService.sendMail({
             to: email,
