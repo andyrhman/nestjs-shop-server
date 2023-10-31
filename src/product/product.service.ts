@@ -12,4 +12,7 @@ export class ProductService extends AbstractService {
     ) {
         super(productRepository)
     }
+    async find(options, relations = []) {
+        return this.productRepository.find({ where: options, relations, order: {created_at: 'DESC'}  });
+    }
 }

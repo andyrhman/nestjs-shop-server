@@ -201,7 +201,7 @@ export class ProductController {
             await this.productImageService.deleteMultipleImages(image.productId);
         }
 
-        // * Delete the related images
+        // * Delete the related variants
         for (const variant of findImages) {
             await this.productVariantService.deleteMultipleVariants(variant.productId);
         }

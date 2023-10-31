@@ -9,12 +9,19 @@ import { UpdateCategoryDTO } from './dto/update.dto';
 export class CategoryController {
     constructor(
         private categoryService: CategoryService
-    ) {}
+    ) { }
 
     // * Get All Categories
     @Get('categories')
-    async all(){
+    async all() {
         return this.categoryService.find({}, ['product'])
+    }
+
+    // * Get All Admin Categories
+    @UseGuards(AuthGuard)
+    @Get('admin/categories')
+    async adminAll() {
+        return this.categoryService.find({})
     }
 
     // * Create Category.
@@ -22,7 +29,7 @@ export class CategoryController {
     @Post('admin/category')
     async create(
         @Body() body: CreateCategoryDTO
-    ){
+    ) {
         return this.categoryService.create(body)
     }
 
@@ -32,7 +39,7 @@ export class CategoryController {
     async update(
         @Param('id') id: string,
         @Body() body: UpdateCategoryDTO
-    ){
+    ) {
         if (!isUUID(id)) {
             throw new BadRequestException('Invalid UUID format');
         }
@@ -48,7 +55,7 @@ export class CategoryController {
     @Delete('admin/category/:id')
     async delete(
         @Param('id') id: string
-    ){
+    ) {
         return this.categoryService.delete(id)
     }
 }
