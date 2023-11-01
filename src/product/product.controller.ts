@@ -89,7 +89,7 @@ export class ProductController {
         if (request.query.sortByPrice || request.query.sortByDate) {
             const sortByPrice = request.query.sortByPrice?.toString().toLowerCase();
             const sortByDate = request.query.sortByDate?.toString().toLowerCase();
-    
+
             products.sort((a, b) => {
                 if (sortByPrice) {
                     if (sortByPrice === 'asc') {
@@ -98,7 +98,7 @@ export class ProductController {
                         return a.price - b.price;
                     }
                 }
-    
+
                 if (sortByDate) {
                     if (sortByDate === 'newest') {
                         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -106,7 +106,7 @@ export class ProductController {
                         return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
                     }
                 }
-    
+
                 return 0;
             });
         }
@@ -117,6 +117,13 @@ export class ProductController {
     @Get('product/:slug')
     async get(@Param('slug') slug: string) {
         return this.productService.findOne({ slug }, ['product_images', 'variant', 'category']);
+    }
+
+    // * Get one product
+    @UseGuards(AuthGuard)
+    @Get('admin/product/:id')
+    async getADmin(@Param('id') id: string) {
+        return this.productService.findOne({ id }, ['product_images', 'variant', 'category']);
     }
 
     // * Update Products.
@@ -154,7 +161,7 @@ export class ProductController {
             throw new BadRequestException("Product not found")
         }
 
-        for(let v of body.variants) {
+        for (let v of body.variants) {
             const productVariant = new ProductVariation()
             productVariant.name = v
             productVariant.product_id = product.id
