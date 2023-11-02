@@ -23,7 +23,7 @@ export class OrderItem {
     @Column()
     quantity: number;
 
-    @Column({name: "variant_id"})
+    @Column({name: "variant_id", nullable: true})
     variant_id: string;
 
     @Column({

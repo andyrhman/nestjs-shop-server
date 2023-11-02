@@ -113,6 +113,12 @@ export class ProductController {
         return products;
     }
 
+    // * Get all variants
+    @Get('admin/variants')
+    async variants(){
+        return this.productVariantService.find({})
+    }
+
     // * Get one product
     @Get('product/:slug')
     async get(@Param('slug') slug: string) {
