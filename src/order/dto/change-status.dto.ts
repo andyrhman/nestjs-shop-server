@@ -1,6 +1,8 @@
-import { IsNotEmpty } from "class-validator";
+import { IsEnum, IsNotEmpty } from "class-validator";
+import { OrderItemStatus } from "../models/order-item.entity";
 
 export class ChangeStatusDTO{
     @IsNotEmpty()
-    status: string;
+    @IsEnum(OrderItemStatus)
+    status: OrderItemStatus;
 }

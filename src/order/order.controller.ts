@@ -158,26 +158,45 @@ export class OrderController {
     async confirm(
         @Body('source') source: string,
         @Req() request: Request
-    ){
+    ) {
         const user = await this.authService.userId(request)
         const order = await this.orderService.findOne({
             transaction_id: source,
-        }, ['user','order_items', 'order_items.product', 'order_items.variant']);
+        }, ['user', 'order_items', 'order_items.product', 'order_items.variant']);
         if (!order) {
             throw new NotFoundException("Order not found")
         }
-        const carts: Cart[] = await this.cartService.find({order_id: order.id, user_id: user});
+        const carts: Cart[] = await this.cartService.find({ order_id: order.id, user_id: user });
         if (carts.length === 0) {
             throw new ForbiddenException()
         }
         for (let cart of carts) {
-            await this.cartService.update(cart.id, {completed: true});
+            await this.cartService.update(cart.id, { completed: true });
         }
-        await this.orderService.update(order.id, {completed: true})
+        await this.orderService.update(order.id, { completed: true })
         await this.eventEmiter.emit('order.completed', order);
         return {
             message: 'success'
         }
+    }
+
+    // * Get order item from user id
+    @Get('/order-user')
+    async getUserOrder(
+        @Req() request: Request
+    ) {
+        const id = await this.authService.userId(request);
+
+        return this.orderService.find({ user_id: id }, ['order_items', 'order_items.product']);
+    }
+
+    // * Get one order.
+    @UseGuards(AuthGuard)
+    @Get('admin/order-items/:id')
+    async getOrderItem(
+        @Param('id') id: string
+    ) {
+        return this.orderItemService.findOne({ id })
     }
 
     // * Change order status
