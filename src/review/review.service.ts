@@ -11,4 +11,7 @@ export class ReviewService extends AbstractService {
     ) {
         super(reviewRepository)
     }
+    async find(options, relations = []) {
+        return this.reviewRepository.find({ where: options, relations, order: {created_at: 'DESC'}  });
+    }
 }

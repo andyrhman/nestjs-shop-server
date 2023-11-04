@@ -15,6 +15,6 @@ import { ProductVariantService } from './product-variant.service';
   ],
   providers: [ProductService, ProductImagesService, ProductVariantService],
   controllers: [ProductController, UploadController],
-  exports: [ProductService]
+  exports: [ProductService, ProductVariantService]
 })
 export class ProductModule {}

@@ -24,7 +24,7 @@ export class ReviewController {
     async get(
         @Req() request: Request
     ){
-        let reviews =  await this.reviewService.find({}, ['product'])
+        let reviews =  await this.reviewService.find({}, ['user','product', 'variant'])
 
         if (request.query.search) {
             const search = request.query.search.toString().toLowerCase();
@@ -36,12 +36,21 @@ export class ReviewController {
         return reviews;
     }
 
-    // * Get product reviews
+    // * Get one product reviews
+    @UseGuards(AuthGuard)
+    @Get('admin/reviews/:id')
+    async user(
+        @Param('id') id: string
+    ){
+        return this.reviewService.findOne({id}, ['user', 'variant', 'product'])
+    }
+
+    // * Get product reviews.
     @Get('reviews/:id')
     async reviews(
         @Param('id') id: string
     ){
-        return this.reviewService.find({product_id: id})
+        return this.reviewService.find({product_id: id}, ['variant', 'user'])
     }
 
     // * Create user review.
