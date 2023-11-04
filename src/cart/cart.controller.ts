@@ -70,6 +70,15 @@ export class CartController {
         return carts;
     }
 
+    // * Get one user carts
+    @UseGuards(AuthGuard)
+    @Get('admin/carts/:id')
+    async getUserCarts(
+        @Param('id') id: string
+    ){
+        return this.cartService.findOne({id});
+    }
+
     // * Add products to cart
     // ? Added variant code solution -> https://www.phind.com/search?cache=v3lv10sq5h4rnfsiiz6iruv1
     @Post('cart')

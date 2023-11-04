@@ -1,5 +1,5 @@
 import { AuthService } from './../auth/auth.service';
-import { BadRequestException, Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { Request } from 'express';
 import { CreateReviewDTO } from './dto/create.dto';
@@ -18,6 +18,7 @@ export class ReviewController {
         private productService: ProductService
     ) {}
 
+    // * Get all reviews
     @UseGuards(AuthGuard)
     @Get('admin/reviews')
     async get(
@@ -33,6 +34,14 @@ export class ReviewController {
             )
         }
         return reviews;
+    }
+
+    // * Get product reviews
+    @Get('reviews/:id')
+    async reviews(
+        @Param('id') id: string
+    ){
+        return this.reviewService.find({product_id: id})
     }
 
     // * Create user review.

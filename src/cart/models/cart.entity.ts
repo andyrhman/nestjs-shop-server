@@ -18,7 +18,7 @@ export class Cart{
     @Column()
     price: number;
 
-    @Column({name: "variant_id"})
+    @Column({name: "variant_id", nullable: true})
     variant_id: string;
 
     @Column({default: 'false'})

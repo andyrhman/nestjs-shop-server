@@ -12,7 +12,7 @@ const bootstrap = async () => {
     
     const orderService = app.get(OrderService);
     const orderItemService = app.get(OrderItemService);
-    const productService = app.get(ProductService)
+    const productService = app.get(ProductService);
 
     // * use this to fetch the user from the db
     const userService = app.get(UserService);

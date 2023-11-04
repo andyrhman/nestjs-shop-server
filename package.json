@@ -20,7 +20,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed:users": "ts-node -r tsconfig-paths/register src/commands/user.seeder.ts",
     "seed:products": "ts-node -r tsconfig-paths/register src/commands/product.seeder.ts",
-    "seed:orders": "ts-node -r tsconfig-paths/register src/commands/order.seeder.ts"
+    "seed:orders": "ts-node -r tsconfig-paths/register src/commands/order.seeder.ts",
+    "seed:carts": "ts-node -r tsconfig-paths/register src/commands/cart.seeder.ts",
+    "seed:reviews": "ts-node -r tsconfig-paths/register src/commands/review.seeder.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^8.2.0",
