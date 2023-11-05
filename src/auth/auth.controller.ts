@@ -314,7 +314,7 @@ export class AuthController {
     }
 
     // * Google Login
-    @Post('login/google-auth')
+    @Post('user/google-auth')
     async googleAuth(
         @Body('token') token: string,
         @Body() body: any,
@@ -361,7 +361,8 @@ export class AuthController {
             : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Adding 7 days in milliseconds
 
         const jwt = await this.jwtService.signAsync({
-            id: user.id
+            id: user.id,
+            scope: 'user'
         });
 
         response.cookie('my_session', jwt, {
@@ -376,7 +377,7 @@ export class AuthController {
     // * Facebook Login.
     // ? https://www.phind.com/search?cache=nvhut4107pp5k79esi10xkfm
     // ? https://www.phind.com/search?cache=va6l733m51m1evdgu52i5wwt
-    @Post('login/facebook-auth')
+    @Post('user/facebook-auth')
     async facebookAuth(
         @Body('token') token: string,
         @Body() body: any,
@@ -428,7 +429,7 @@ export class AuthController {
 
                 const jwt = await this.jwtService.signAsync({
                     id: user.id,
-                    scope: adminLogin ? 'admin' : 'ambassador'
+                    scope: 'user'
                 });
 
                 response.cookie('my_session', jwt, {
