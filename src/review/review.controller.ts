@@ -50,7 +50,7 @@ export class ReviewController {
     async reviews(
         @Param('id') id: string
     ){
-        return this.reviewService.find({product_id: id}, ['variant', 'user'])
+        return this.reviewService.find({product_id: id}, ['user'])
     }
 
     // * Create user review.
@@ -61,7 +61,7 @@ export class ReviewController {
         @Req() request: Request
     ){
         const user = await this.authService.userId(request);
-        const reviewExist = await this.reviewService.findOne({user_id: user});
+        const reviewExist = await this.reviewService.findOne({user_id: user, product_id: body.product_id});
         const product = await this.productService.findOne({id: body.product_id});
         if (reviewExist) {
             throw new BadRequestException("You have already review this product.")

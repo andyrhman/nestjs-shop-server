@@ -3,6 +3,7 @@ import { User } from "src/user/models/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { OrderItem } from "./order-item.entity";
 import { Cart } from "src/cart/models/cart.entity";
+import { Review } from "src/review/models/review.entity";
 @Entity('orders')
 export class Order {
     @PrimaryGeneratedColumn('uuid')
@@ -35,6 +36,9 @@ export class Order {
 
     @OneToMany(() => Cart, cart => cart.order)
     cart: Cart[];
+
+    @OneToMany(() => Review, review => review.order)
+    review: Review[];
 
     // * Getting the total price
     @Expose()

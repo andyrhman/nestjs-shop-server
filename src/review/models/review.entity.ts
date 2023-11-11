@@ -1,4 +1,4 @@
-import { ProductVariation } from "src/product/models/product-variation.entity";
+import { Order } from "src/order/models/order.entity";
 import { Product } from "src/product/models/product.entity";
 import { User } from "src/user/models/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -23,11 +23,11 @@ export class Review{
     @Column({name: "product_id"})
     product_id: string;
 
-    @Column({name: "variant_id"})
-    variant_id: string;
-
     @CreateDateColumn()
     created_at: string;
+
+    @Column({name: "order_id", nullable: true})
+    order_id: string;
 
     @ManyToOne(() => User, (user) => user.review)
     @JoinColumn({name: "user_id"})
@@ -37,7 +37,7 @@ export class Review{
     @JoinColumn({name: "product_id"})
     product: Product;
 
-    @ManyToOne(() => ProductVariation, (variant) => variant.review)
-    @JoinColumn({name: "variant_id"})
-    variant: ProductVariation;
+    @ManyToOne(() => Order, (order) => order.review)
+    @JoinColumn({name: "order_id"})
+    order: Order;
 }

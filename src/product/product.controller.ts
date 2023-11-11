@@ -114,7 +114,7 @@ export class ProductController {
     }
 
     // * Get all variants
-    @Get('admin/variants')
+    @Get('variants')
     async variants(){
         return this.productVariantService.find({})
     }
@@ -122,7 +122,7 @@ export class ProductController {
     // * Get one product
     @Get('product/:slug')
     async get(@Param('slug') slug: string) {
-        return this.productService.findOne({ slug }, ['product_images', 'variant', 'category']);
+        return this.productService.findOne({ slug }, ['product_images', 'variant', 'category', 'review', 'review.user']);
     }
 
     // * Get one product

@@ -24,7 +24,4 @@ export class ProductVariation {
 
     @OneToMany(() => OrderItem, (order_item) => order_item.variant)
     order_item: OrderItem[];
-
-    @OneToMany(() => Review, (review) => review.variant)
-    review: Review[];
 }

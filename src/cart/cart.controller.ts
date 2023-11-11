@@ -111,7 +111,7 @@ export class CartController {
         @Req() request: Request
     ) {
         const user = await this.authService.userId(request);
-        const cart = await this.cartService.findUserCart({ user_id: user }, ['order', 'variant']);
+        const cart = await this.cartService.findUserCart({ user_id: user }, ['order', 'variant', 'product']);
         if (!cart) {
             throw new NotFoundException()
         }
