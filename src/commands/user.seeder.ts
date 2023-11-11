@@ -18,7 +18,8 @@ const bootstrap = async () => {
             fullName: faker.person.fullName(),
             username: faker.internet.userName().toLowerCase(),
             email: faker.internet.email().toLowerCase(),
-            password
+            password,
+            is_verified: true
         });
     }
 

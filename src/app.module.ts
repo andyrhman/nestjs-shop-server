@@ -12,9 +12,6 @@ import { CartModule } from './cart/cart.module';
 import { CategoryModule } from './category/category.module';
 import { ReviewModule } from './review/review.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { join } from 'path';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { ResetModule } from './reset/reset.module';
 import { StatisticModule } from './statistic/statistic.module';
 
@@ -31,24 +28,6 @@ import { StatisticModule } from './statistic/statistic.module';
       database: process.env.POSTGRES_DATABASE,
       autoLoadEntities: true, //delete if production
       synchronize: true,
-    }),
-    MailerModule.forRoot({
-      transport:{
-        // * Let docker know nodemailer run in local.
-        // ? https://www.phind.com/search?cache=rrc34g0tz9oxk331skvds3di
-        host: 'host.docker.internal',
-        port: 1025,
-      },
-      defaults: {
-        from: 'service@mail.com'
-      },
-      template: {
-        dir: join(__dirname, 'templates'),
-        adapter: new HandlebarsAdapter(),
-        options: {
-          strict: false
-        }
-      }
     }),
     EventEmitterModule.forRoot(),
     CommonModule,

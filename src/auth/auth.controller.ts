@@ -76,7 +76,7 @@ export class AuthController {
         await this.mailerService.sendMail({
             to: user.email,
             subject: 'Verify your email',
-            template: '/var/nest-shop-server/src/auth/templates/auth',
+            template: 'auth',
             context: {
                 name,
                 url

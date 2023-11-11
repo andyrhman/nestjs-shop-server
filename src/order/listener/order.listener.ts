@@ -24,7 +24,7 @@ export class OrderListener{
         await this.mailerService.sendMail({
             to: 'andyrhmnn@gmail.com',
             subject: 'An order has been completed',
-            template: '/var/nest-shop-server/src/order/templates/order',
+            template: 'order',
             context: {
                 products,
                 orderId,

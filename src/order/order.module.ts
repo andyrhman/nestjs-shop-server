@@ -13,6 +13,9 @@ import { CartModule } from 'src/cart/cart.module';
 import { AddressModule } from 'src/address/address.module';
 import { StripeModule } from '@golevelup/nestjs-stripe';
 import { OrderListener } from './listener/order.listener';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { join } from 'path';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -27,27 +30,25 @@ import { OrderListener } from './listener/order.listener';
       apiKey: process.env.STRIPE_API_KEY,
       apiVersion: '2022-11-15'
     }),
-    // MailerModule.forRoot({
-    //   transport:{
-    //     host: process.env.SMTP_HOST,
-    //     port: parseInt(process.env.SMTP_PORT, 10),
-    //     secure: process.env.SMTP_SECURE === 'true',
-    //     auth: {
-    //       user: process.env.SMTP_USERNAME,
-    //       pass: process.env.SMTP_PASSWORD,
-    //     },
-    //   },
-    //   template: {
-    //     dir: join(__dirname, 'templates'),
-    //     adapter: new HandlebarsAdapter(),
-    //     options: {
-    //       strict: false
-    //     }
-    //   }
-    // }),
+    MailerModule.forRoot({
+      transport: {
+        host: '0.0.0.0',
+        port: 1025,
+      },
+      defaults: {
+        from: 'service@mail.com'
+      },
+      template: {
+        dir: join(__dirname, 'templates'),
+        adapter: new HandlebarsAdapter(),
+        options: {
+          strict: false
+        }
+      }
+    }),
   ],
   providers: [OrderService, OrderItemService, OrderListener],
   controllers: [OrderController],
   exports: [OrderService, OrderItemService]
 })
-export class OrderModule {}
+export class OrderModule { }

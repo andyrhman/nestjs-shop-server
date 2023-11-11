@@ -43,7 +43,7 @@ export class ResetController {
         await this.mailerService.sendMail({
             to: email,
             subject: 'Reset Your Password',
-            template: '/var/nest-shop-server/src/reset/templates/email',
+            template: 'email',
             context: {
                 url: url, // Pass the token to the template
             },
