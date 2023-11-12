@@ -24,7 +24,7 @@ export class OrderListener{
         await this.mailerService.sendMail({
             to: 'andyrhmnn@gmail.com',
             subject: 'An order has been completed',
-            template: 'order',
+            template: '../../order/templates/order',
             context: {
                 products,
                 orderId,
