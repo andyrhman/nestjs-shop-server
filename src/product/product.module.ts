@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,10 +8,12 @@ import { UploadController } from './upload.controller';
 import { ProductImagesService } from './product-images.service';
 import { ProductVariation } from './models/product-variation.entity';
 import { ProductVariantService } from './product-variant.service';
+import { ReviewModule } from 'src/review/review.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product, ProductImages, ProductVariation])
+    TypeOrmModule.forFeature([Product, ProductImages, ProductVariation]),
+    forwardRef(() => ReviewModule)
   ],
   providers: [ProductService, ProductImagesService, ProductVariantService],
   controllers: [ProductController, UploadController],

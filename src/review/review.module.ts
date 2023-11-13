@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ReviewController } from './review.controller';
 import { ReviewService } from './review.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,7 +12,7 @@ import { ProductModule } from 'src/product/product.module';
     TypeOrmModule.forFeature([Review]),
     AuthModule,
     OrderModule,
-    ProductModule
+    forwardRef(() => ProductModule)
   ],
   controllers: [ReviewController],
   providers: [ReviewService],

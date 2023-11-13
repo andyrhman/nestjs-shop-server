@@ -4,16 +4,17 @@ import { AbstractService } from 'src/common/abstract.service';
 import { Repository } from 'typeorm';
 import { Cart } from './models/cart.entity';
 
+
 @Injectable()
-export class CartService extends AbstractService{
+export class CartService extends AbstractService {
     constructor(
         @InjectRepository(Cart) private readonly cartRepository: Repository<Cart>
     ) {
         super(cartRepository)
     }
-    
+
     async deleteUserCart(user_id: string, cart_id: string): Promise<any> {
-        return this.repository.delete({user_id: user_id, id: cart_id});
+        return this.repository.delete({ user_id: user_id, id: cart_id });
     }
 
     async findCartItemByProductAndVariant(productId: string, variantId: string, userId: string) {
@@ -48,5 +49,21 @@ export class CartService extends AbstractService{
 
         const result = await this.cartRepository.query(query);
         return result;
+    }
+
+    async totalPriceAndCount(options, relations = []){
+        const cartItems = await this.cartRepository.find({ where: options, relations });
+        let totalItems = 0;
+        let totalPrice = 0;
+        cartItems.forEach(item => {
+            if (item.completed === false) {
+                totalItems += item.quantity;
+                totalPrice += item.price * item.quantity;
+            }
+        });
+        return {
+            total: totalItems,
+            totalPrice
+        };
     }
 }

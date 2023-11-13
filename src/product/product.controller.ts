@@ -13,13 +13,15 @@ import { Request } from 'express';
 import { ProductVariation } from './models/product-variation.entity';
 import { ProductVariantService } from './product-variant.service';
 import { ProductVariantsUpdateDTO } from './dto/update-variants.dto';
+import { ReviewService } from 'src/review/review.service';
 
 @Controller()
 export class ProductController {
     constructor(
         private productService: ProductService,
         private productImageService: ProductImagesService,
-        private productVariantService: ProductVariantService
+        private productVariantService: ProductVariantService,
+        private reviewService: ReviewService
     ) { }
 
     // * Create Products
@@ -67,6 +69,12 @@ export class ProductController {
     ) {
         let products = await this.productService.find({}, ['variant', 'category']);
 
+        // Add average rating to each product.
+        for (let product of products) {
+            (product as any).averageRating = await this.reviewService.calculateAverageRating(product.id);
+        }
+
+        // Existing filter and sort code...
         if (request.query.search) {
             const search = request.query.search.toString().toLowerCase();
             products = products.filter(
@@ -113,6 +121,12 @@ export class ProductController {
         return products;
     }
 
+
+    @Get('product/rating/:id')
+    async getAverageRating(@Param('id') productId: string): Promise<number> {
+        return this.reviewService.calculateAverageRating(productId);
+    }
+
     // * Get all variants
     @Get('variants')
     async variants(){
@@ -122,7 +136,14 @@ export class ProductController {
     // * Get one product
     @Get('product/:slug')
     async get(@Param('slug') slug: string) {
-        return this.productService.findOne({ slug }, ['product_images', 'variant', 'category', 'review', 'review.user']);
+        const product = await this.productService.findOne({ slug }, ['product_images', 'variant', 'category', 'review', 'review.user']);
+
+        // Add average rating and review count to the product
+        const ratingAndReviewCount = await this.reviewService.getRatingAndReviewCount(product.id);
+        (product as any).averageRating = ratingAndReviewCount.averageRating;
+        (product as any).reviewCount = ratingAndReviewCount.reviewCount;
+
+        return product;
     }
 
     // * Get one product

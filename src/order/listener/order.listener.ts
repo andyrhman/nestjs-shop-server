@@ -24,6 +24,7 @@ export class OrderListener{
         await this.mailerService.sendMail({
             to: 'andyrhmnn@gmail.com',
             subject: 'An order has been completed',
+            // ! https://www.phind.com/search?cache=terb3h9bevwjuxmdfjy9gioq
             template: '../../order/templates/order',
             context: {
                 products,

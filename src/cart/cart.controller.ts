@@ -41,7 +41,7 @@ export class CartController {
         if (request.query.sortByCompleted || request.query.sortByDate) {
             const sortByCompleted = request.query.sortByCompleted?.toString().toLowerCase();
             const sortByDate = request.query.sortByDate?.toString().toLowerCase();
-        
+
             carts.sort((a, b) => {
                 if (sortByCompleted) {
                     if (sortByCompleted === 'asc') {
@@ -54,7 +54,7 @@ export class CartController {
                         }
                     }
                 }
-        
+
                 if (sortByDate) {
                     if (sortByDate === 'newest') {
                         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -62,11 +62,11 @@ export class CartController {
                         return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
                     }
                 }
-        
+
                 return 0;
             });
         }
-        
+
         return carts;
     }
 
@@ -75,8 +75,8 @@ export class CartController {
     @Get('admin/carts/:id')
     async getUserCarts(
         @Param('id') id: string
-    ){
-        return this.cartService.findOne({id});
+    ) {
+        return this.cartService.findOne({ id });
     }
 
     // * Add products to cart
@@ -88,7 +88,7 @@ export class CartController {
     ) {
         const user = await this.authService.userId(request);
         const existingCartItem = await this.cartService.findCartItemByProductAndVariant(body.product_id, body.variant_id, user);
-    
+
         if (existingCartItem) {
             existingCartItem.quantity += body.quantity;
             return this.cartService.update(existingCartItem.id, existingCartItem);
@@ -100,7 +100,7 @@ export class CartController {
             c.product_id = body.product_id;
             c.variant_id = body.variant_id;
             c.user_id = user
-    
+
             return this.cartService.create(c);
         }
     }
@@ -123,7 +123,7 @@ export class CartController {
     async update(
         @Param('id') id: string,
         @Body() body: UpdateCartDto
-    ){
+    ) {
         return this.cartService.update(id, body)
     }
 
@@ -140,5 +140,18 @@ export class CartController {
             throw new ForbiddenException();
         }
         return this.cartService.deleteUserCart(user_id, cart_id);
+    }
+
+    // * Count total auth user cart.
+    @Get('cart-total')
+    async getTotal(
+        @Req() request: Request
+    ) {
+        const user = await this.authService.userId(request);
+        const totalData = await this.cartService.totalPriceAndCount({ user_id: user });
+        return {
+            totalItems: totalData.total,
+            totalPrice: totalData.totalPrice
+        };
     }
 }
