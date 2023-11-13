@@ -6,15 +6,7 @@
   "compilerOptions": {
     "assets": [
       {
-        "include": "auth/templates/**/*.hbs",
-        "outDir": "dist/src"
-      },
-      {
-        "include": "order/templates/**/*.hbs",
-        "outDir": "dist/src"
-      },
-      {
-        "include": "reset/templates/**/*.hbs",
+        "include": "templates/**/*.hbs",
         "outDir": "dist/src"
       }
     ],

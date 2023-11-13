@@ -56,7 +56,7 @@ export class AuthController {
             throw new BadRequestException("Email not found")
         }
         if (user.is_verified) {
-            throw new NotFoundException('Your account had already verified');
+            throw new NotFoundException('Your account has already verified');
         }
         const token = crypto.randomBytes(16).toString('hex');
         const tokenExpiresAt = Date.now() + this.TOKEN_EXPIRATION;
@@ -69,14 +69,14 @@ export class AuthController {
             expiresAt: tokenExpiresAt
         })
 
-        const url = `http://localhost:4000/api/verify/${token}`;
+        const url = `http://localhost:4000/verify/${token}`;
 
         const name = user.fullName
     
         await this.mailerService.sendMail({
             to: user.email,
             subject: 'Verify your email',
-            template: 'auth',
+            template: '../../auth/templates/auth',
             context: {
                 name,
                 url
