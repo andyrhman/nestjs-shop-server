@@ -24,6 +24,6 @@ async function bootstrap() {
     credentials: true //passing cookie back and forth in every request remove {passtrough: true}
   });
 
-  await app.listen(8000);
+  await app.listen(3000);
 }
 bootstrap();

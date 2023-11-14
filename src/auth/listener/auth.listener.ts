@@ -33,7 +33,7 @@ export class TokenListener{
         await this.mailerService.sendMail({
             to: user.email,
             subject: 'Verify your email',
-            template: './auth',
+            template: '/var/nest-shop-server/src/auth/templates/auth',
             context: {
                 name,
                 url
