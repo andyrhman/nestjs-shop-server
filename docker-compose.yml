@@ -7,6 +7,8 @@ services:
       - 8000:3000
     volumes:
       - ".:/var/nest-shop-server"
+    env_file:
+      - ./config/database.env
   db:
     container_name: db
     image: postgres:15.3
