@@ -33,6 +33,15 @@ export class CategoryController {
         return this.categoryService.create(body)
     }
 
+    // * Get One Category
+    @UseGuards(AuthGuard)
+    @Get('admin/category/:id')
+    async get(
+        @Param('id') id: string
+    ) {
+        return this.categoryService.findOne({id});
+    }
+
     // * Update Category
     @UseGuards(AuthGuard)
     @Put('admin/category/:id')

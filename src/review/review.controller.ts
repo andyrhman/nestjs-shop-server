@@ -24,7 +24,7 @@ export class ReviewController {
     async get(
         @Req() request: Request
     ){
-        let reviews =  await this.reviewService.find({}, ['user','product', 'variant'])
+        let reviews =  await this.reviewService.find({}, ['user','product'])
 
         if (request.query.search) {
             const search = request.query.search.toString().toLowerCase();
@@ -42,7 +42,7 @@ export class ReviewController {
     async user(
         @Param('id') id: string
     ){
-        return this.reviewService.findOne({id}, ['user', 'variant', 'product'])
+        return this.reviewService.findOne({id}, ['user', 'product'])
     }
 
     // * Get product reviews.
