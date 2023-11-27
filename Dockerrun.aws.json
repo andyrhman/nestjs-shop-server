@@ -6,7 +6,7 @@
             "image": "tataran/shop-server",
             "hostname": "api",
             "essential": true,
-            "memory": 128
+            "memory": 512
         },
         {
             "name": "nginx",
