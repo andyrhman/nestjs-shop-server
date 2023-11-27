@@ -31,12 +31,14 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
       apiVersion: '2022-11-15'
     }),
     MailerModule.forRoot({
-      transport: {
-        host: '0.0.0.0',
-        port: 1025,
-      },
-      defaults: {
-        from: 'service@mail.com'
+      transport:{
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT, 10),
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USERNAME,
+          pass: process.env.SMTP_PASSWORD,
+        },
       },
       template: {
         dir: join(__dirname, 'templates'),
