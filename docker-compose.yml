@@ -1,23 +1,33 @@
 services:
-  server:
-    container_name: server
+  api:
+    container_name: api
     build:
       context: .
-    ports:
-      - 8000:3000
+      dockerfile: Dockerfile.dev
     volumes:
       - ".:/var/nest-shop-server"
     env_file:
       - ./config/database.env
+
   db:
     container_name: db
     image: postgres:15.3
     restart: always
     environment:
       POSTGRES_DB: my_shop
-      POSTGRES_USER: postgres  # The PostgreSQL user
-      POSTGRES_PASSWORD: AndySatu989!e  # The password for the PostgreSQL user
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: AndySatu989!e
     volumes:
-      - ./.pgdata:/var/lib/postgresql/data  # Volume for persisting PostgreSQL data
+      - ./.pgdata:/var/lib/postgresql/data
     ports:
-      - 54322:5432  # Expose a different port if 5432 is already in use by Project 1
+      - 54322:5432
+
+  nginx:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./nginx
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
