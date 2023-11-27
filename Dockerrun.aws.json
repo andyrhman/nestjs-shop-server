@@ -9,13 +9,6 @@
             "memory": 128
         },
         {
-            "name": "db",
-            "image": "postgres",
-            "hostname": "db",
-            "essential": false,
-            "memory": 128
-        },
-        {
             "name": "nginx",
             "image": "tataran/shop-nginx",
             "hostname": "nginx",
@@ -27,8 +20,7 @@
                 }
             ],
             "links": [
-                "server",
-                "db"
+                "server"
             ],
             "memory": 128
         }
