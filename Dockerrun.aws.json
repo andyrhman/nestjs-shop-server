@@ -27,7 +27,8 @@
                 }
             ],
             "links": [
-                "server"
+                "server",
+                "db"
             ],
             "memory": 128
         }
