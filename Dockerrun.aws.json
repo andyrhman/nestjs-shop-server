@@ -10,7 +10,7 @@
         },
         {
             "name": "db",
-            "image": "postgres:15.3",
+            "image": "postgres",
             "hostname": "db",
             "essential": false,
             "memory": 128
