@@ -9,11 +9,13 @@ import { ProductImagesService } from './product-images.service';
 import { ProductVariation } from './models/product-variation.entity';
 import { ProductVariantService } from './product-variant.service';
 import { ReviewModule } from 'src/review/review.module';
+import { CategoryModule } from 'src/category/category.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Product, ProductImages, ProductVariation]),
-    forwardRef(() => ReviewModule)
+    forwardRef(() => ReviewModule),
+    CategoryModule
   ],
   providers: [ProductService, ProductImagesService, ProductVariantService],
   controllers: [ProductController, UploadController],

@@ -14,6 +14,7 @@ import { ProductVariation } from './models/product-variation.entity';
 import { ProductVariantService } from './product-variant.service';
 import { ProductVariantsUpdateDTO } from './dto/update-variants.dto';
 import { ReviewService } from 'src/review/review.service';
+import { CategoryService } from 'src/category/category.service';
 
 @Controller()
 export class ProductController {
@@ -21,7 +22,8 @@ export class ProductController {
         private productService: ProductService,
         private productImageService: ProductImagesService,
         private productVariantService: ProductVariantService,
-        private reviewService: ReviewService
+        private reviewService: ReviewService,
+        private categoryService: CategoryService
     ) { }
 
     // * Create Products
@@ -30,6 +32,7 @@ export class ProductController {
     async create(
         @Body() body: ProductCreateDto
     ) {
+        const category = await this.categoryService.findOne({id: body.category})
         const p = new Product();
         p.title = body.title;
         p.slug = slugify(body.title, {
@@ -40,6 +43,12 @@ export class ProductController {
         p.description = body.description;
         p.image = body.image;
         p.price = body.price;
+        if (!isUUID(body.category)) {
+            throw new BadRequestException('Invalid UUID format');
+        }
+        if (!category) {
+            throw new BadRequestException("Category does not exists")
+        }
         p.category_id = body.category
 
         const product = await this.productService.create(p);
