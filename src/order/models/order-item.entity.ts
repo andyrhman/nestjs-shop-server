@@ -30,6 +30,7 @@ export class OrderItem {
         type: 'enum',
         enum: OrderItemStatus,
         default: OrderItemStatus.SedangDikemas,
+        enumName: "order_items_status_enum" // Add this line
     })
     status: OrderItemStatus;
 
