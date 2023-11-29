@@ -7,32 +7,37 @@ import { TokenListener } from './listener/auth.listener';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     CommonModule,
     UserModule,
-    MailerModule.forRoot({
-      transport:{
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT, 10),
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USERNAME,
-          pass: process.env.SMTP_PASSWORD,
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: configService.get<string>('SMTP_HOST'),
+          port: +configService.get<number>('SMTP_PORT'),
+          secure: configService.get<string>('SMTP_SECURE') === 'true',
+          auth: {
+            user: configService.get<string>('SMTP_USERNAME'),
+            pass: configService.get<string>('SMTP_PASSWORD'),
+          },
         },
-      },
-      template: {
-        dir: join(__dirname, 'templates'),
-        adapter: new HandlebarsAdapter(),
-        options: {
-          strict: false
+        template: {
+          dir: join(__dirname, 'templates'),
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: false
+          }
         }
-      }
+      }),
+      inject: [ConfigService],
     }),
   ],
   providers: [AuthService, TokenListener],
   controllers: [AuthController],
   exports: [AuthService]
 })
-export class AuthModule {}
+export class AuthModule { }

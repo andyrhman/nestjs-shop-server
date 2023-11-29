@@ -22,7 +22,13 @@
     "seed:products": "ts-node -r tsconfig-paths/register src/commands/product.seeder.ts",
     "seed:orders": "ts-node -r tsconfig-paths/register src/commands/order.seeder.ts",
     "seed:carts": "ts-node -r tsconfig-paths/register src/commands/cart.seeder.ts",
-    "seed:reviews": "ts-node -r tsconfig-paths/register src/commands/review.seeder.ts"
+    "seed:reviews": "ts-node -r tsconfig-paths/register src/commands/review.seeder.ts",
+    "typeorm": "ts-node --require tsconfig-paths/register ./node_modules/typeorm/cli",
+    "migration:run": "npm run typeorm migration:run -- -d ./db/typeorm.config.ts",
+    "migration:generate": "npm run typeorm -- -d ./db/typeorm.config.ts migration:generate ./db/migrations/$npm_config_name",
+    "migration:create": "npm run typeorm -- migration:create ./db/migrations/$npm_config_name",
+    "migration:revert": "npm run typeorm -- -d ./db/typeorm.config.ts migration:revert",
+    "migration:show": "npm run typeorm -- migration:show -d ./db/typeorm.config.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^8.2.0",
