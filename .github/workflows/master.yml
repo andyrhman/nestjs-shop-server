@@ -16,7 +16,7 @@ jobs:
       - name: Run migrations
         run: |
           npm install
-          npm run migration:generate
+          npm run migration:generate --name=MIGRATE_TABLES
           npm run migration:run
         env:
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
