@@ -1,50 +1,26 @@
 name: CI/CD Pipeline
 
 on:
-  pull_request_target:
-    types:
-      - closed
+  push:
+    branches:
+      - production
 
 jobs:
   build:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build Docker images and push to Docker Hub
+      - name: Run migrations
         run: |
-          docker build -t tataran/shop-server .
-          docker build -t tataran/shop-nginx ./nginx
-          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
-          docker push tataran/shop-server
-          docker push tataran/shop-nginx
+          npm install
+          npm run migration:generate
+          npm run migration:run
         env:
-          DOCKER_ID: ${{ secrets.DOCKER_ID }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Generate deployment package
-      run: zip -r ${{ github.run_id }}.zip . -x '*.git*'
-
-    - name: Deploy to AWS Elastic Beanstalk
-      uses: einaregilsson/beanstalk-deploy@v21
-      with:
-        aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
-        aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-        application_name: shopyfy-server
-        environment_name: Shopyfy-server-env
-        region: ap-southeast-1
-        version_label: ${{github.run_number}}
-        deployment_package: ${{ github.run_id }}.zip
-
-
-    
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+          POSTGRES_USERNAME: ${{ secrets.POSTGRES_USERNAME }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
