@@ -16,6 +16,7 @@ import { OrderListener } from './listener/order.listener';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -26,27 +27,35 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     forwardRef(() => ProductModule),
     CartModule,
     AddressModule,
-    StripeModule.forRoot(StripeModule, {
-      apiKey: process.env.STRIPE_API_KEY,
-      apiVersion: '2022-11-15'
+    StripeModule.forRootAsync(StripeModule, {
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        apiKey: configService.get<string>('STRIPE_API_KEY'),
+        apiVersion: '2022-11-15'
+      }),
+      inject: [ConfigService],
     }),
-    MailerModule.forRoot({
-      transport:{
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT, 10),
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USERNAME,
-          pass: process.env.SMTP_PASSWORD,
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: configService.get<string>('SMTP_HOST'),
+          port: +configService.get<number>('SMTP_PORT'),
+          secure: configService.get<string>('SMTP_SECURE') === 'true',
+          auth: {
+            user: configService.get<string>('SMTP_USERNAME'),
+            pass: configService.get<string>('SMTP_PASSWORD'),
+          },
         },
-      },
-      template: {
-        dir: join(__dirname, 'templates'),
-        adapter: new HandlebarsAdapter(),
-        options: {
-          strict: false
+        template: {
+          dir: join(__dirname, 'templates'),
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: false
+          }
         }
-      }
+      }),
+      inject: [ConfigService],
     }),
   ],
   providers: [OrderService, OrderItemService, OrderListener],

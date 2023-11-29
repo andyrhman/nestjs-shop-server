@@ -139,8 +139,8 @@ export class OrderController {
                 payment_method_types: ['card'],
                 mode: 'payment',
                 line_items,
-                success_url: `${process.env.CHECKOUT_URL}/success?source={CHECKOUT_SESSION_ID}`,
-                cancel_url: `${process.env.CHECKOUT_URL}/error`,
+                success_url: `${this.configService.get('CHECKOUT_URL')}/success?source={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${this.configService.get('CHECKOUT_URL')}/error`,
             })
 
             order.transaction_id = source['id'];

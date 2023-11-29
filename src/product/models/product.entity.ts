@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { ProductImages } from "./product.images";
+import { ProductImages } from "./product-images.entity";
 import { ProductVariation } from "./product-variation.entity";
 import { Category } from "src/category/models/category.entity";
 import { Cart } from "src/cart/models/cart.entity";

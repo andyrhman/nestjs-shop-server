@@ -4,7 +4,7 @@ import { ProductCreateDto } from './dto/product-create.dto';
 import { Product } from './models/product.entity';
 import slugify from 'slugify';
 import { ProductImagesService } from './product-images.service';
-import { ProductImages } from './models/product.images';
+import { ProductImages } from './models/product-images.entity';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ProductUpdateDto } from './dto/product-update.dto';
 import { isUUID } from 'class-validator';
