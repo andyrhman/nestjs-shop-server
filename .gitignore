@@ -3,6 +3,7 @@
 /node_modules
 /.pgdata
 /uploads
+/db/migrations/*
 
 # Logs
 logs
