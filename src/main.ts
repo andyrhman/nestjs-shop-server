@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
+import { ConfigService } from '@nestjs/config';
 import { HttpExceptionFilter } from './http.exception';
 
 async function bootstrap() {
@@ -19,8 +20,11 @@ async function bootstrap() {
   // * Using cookie parser for jwt.
   app.use(cookieParser());
 
+  const configService = app.get(ConfigService);
+  const origins = [configService.get('ORIGIN_1'), configService.get('ORIGIN_2')];
+
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:4000'],
+    origin: origins,
     credentials: true //passing cookie back and forth in every request remove {passtrough: true}
   });
 
