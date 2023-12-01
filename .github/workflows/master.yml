@@ -9,7 +9,6 @@ jobs:
   build:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,6 +23,25 @@ jobs:
         env:
           DOCKER_ID: ${{ secrets.DOCKER_ID }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  migrate:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run migrations
+        run: |
+          npm install
+          npm run migration:generate --name=MIGRATE_TABLES
+          npm run migration:run
+        env:
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+          POSTGRES_USERNAME: ${{ secrets.POSTGRES_USERNAME }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -45,6 +63,3 @@ jobs:
         region: ap-southeast-1
         version_label: ${{github.run_number}}
         deployment_package: ${{ github.run_id }}.zip
-
-
-    

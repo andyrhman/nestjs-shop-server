@@ -6,13 +6,15 @@ import { Review } from './models/review.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { OrderModule } from 'src/order/order.module';
 import { ProductModule } from 'src/product/product.module';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Review]),
     AuthModule,
     OrderModule,
-    forwardRef(() => ProductModule)
+    forwardRef(() => ProductModule),
+    CommonModule
   ],
   controllers: [ReviewController],
   providers: [ReviewService],

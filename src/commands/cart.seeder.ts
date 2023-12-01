@@ -13,7 +13,6 @@ const bootstrap = async () => {
     const productService = app.get(ProductService);
     const userService = app.get(UserService);
     const orderService = app.get(OrderService);
-
     const users = await userService.find({});
     const product = await productService.find({});
     const orders = await orderService.find({})

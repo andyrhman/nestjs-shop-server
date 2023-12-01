@@ -28,6 +28,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import * as crypto from 'crypto';
 import { OAuth2Client } from 'google-auth-library';
 import * as FB from 'fb';
+import { ConfigService } from '@nestjs/config';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller()
@@ -40,6 +41,7 @@ export class AuthController {
         private authService: AuthService,
         private eventEmiter: EventEmitter2,
         private mailerService: MailerService,
+        private configService: ConfigService,
     ) { }
 
     // * Resend verify token
@@ -321,7 +323,7 @@ export class AuthController {
         @Req() request: Request,
         @Res({ passthrough: true }) response: Response
     ) {
-        const clientId = process.env.GOOGLE_CLIENT
+        const clientId = this.configService.get('GOOGLE_CLIENT')
         const client = new OAuth2Client(clientId);
 
         const ticket = await client.verifyIdToken({
@@ -384,8 +386,8 @@ export class AuthController {
         @Req() request: Request,
         @Res({ passthrough: true }) response: Response
     ) {
-        const appId = process.env.FACEBOOK_APP_ID;
-        const clientSecret = process.env.FACEBOOK_CLIENT_SECRET;
+        const appId = this.configService.get('FACEBOOK_APP_ID');
+        const clientSecret = this.configService.get('FACEBOOK_CLIENT_SECRET');
 
         FB.options({
             appId: appId,

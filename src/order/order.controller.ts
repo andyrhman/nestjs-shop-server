@@ -108,6 +108,11 @@ export class OrderController {
                 orderItem.product_id = cart[0].product_id;
                 orderItem.variant_id = cart[0].variant_id;
 
+                const totalAmount = cart[0].price * cart[0].quantity;
+                if (totalAmount < 7500) {
+                    throw new BadRequestException("The total amount must be at least Rp7,500.00");
+                }
+
                 cart[0].order_id = order.id;
                 await queryRunner.manager.update(Cart, cart[0].id, cart[0]);
 
@@ -117,7 +122,7 @@ export class OrderController {
                 line_items.push({
                     price_data: {
                         currency: 'idr',
-                        unit_amount: 10 * cart[0].price,
+                        unit_amount: cart[0].price,
                         product_data: {
                             name: `${cart[0].product_title} - Variant ${cart[0].variant.name}`,
                             description: cart[0].product.description,
