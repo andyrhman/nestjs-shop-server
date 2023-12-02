@@ -17,7 +17,7 @@ async function bootstrap() {
   // * Adding this for the class validator
   app.useGlobalPipes(new ValidationPipe());
 
-  // * Using cookie parser for jwt.
+  // * Using cookie parser for jwt
   app.use(cookieParser());
 
   const configService = app.get(ConfigService);
