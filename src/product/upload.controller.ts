@@ -1,14 +1,18 @@
 import { Controller, Get, Param, Post, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { diskStorage } from 'multer'
 import { extname } from 'path';
 import { AuthGuard } from 'src/auth/auth.guard';
 
-@UseGuards(AuthGuard)
 @Controller()
 export class UploadController {
+    constructor(
+        private configService: ConfigService,
+    ) {}
 
+    @UseGuards(AuthGuard)
     @Post('admin/upload')
     @UseInterceptors(FileInterceptor('image', {
         storage: diskStorage({
@@ -21,11 +25,11 @@ export class UploadController {
     }))
     uploadFile(@UploadedFile() file) {
         return {
-            url : `http://localhost:8000/api/admin/${file.path}`
+            url : `${this.configService.get('ORIGIN_1')}/api/image/${file.path}`
         }
     }
 
-    @Get('admin/uploads/:path')
+    @Get('image/uploads/:path')
     async getImage(
         @Param('path') path,
         @Res() response: Response

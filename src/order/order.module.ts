@@ -13,9 +13,6 @@ import { CartModule } from 'src/cart/cart.module';
 import { AddressModule } from 'src/address/address.module';
 import { StripeModule } from '@golevelup/nestjs-stripe';
 import { OrderListener } from './listener/order.listener';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { join } from 'path';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
@@ -32,28 +29,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       useFactory: async (configService: ConfigService) => ({
         apiKey: configService.get<string>('STRIPE_API_KEY'),
         apiVersion: '2022-11-15'
-      }),
-      inject: [ConfigService],
-    }),
-    MailerModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        transport: {
-          host: configService.get<string>('SMTP_HOST'),
-          port: +configService.get<number>('SMTP_PORT'),
-          secure: configService.get<string>('SMTP_SECURE') === 'true',
-          auth: {
-            user: configService.get<string>('SMTP_USERNAME'),
-            pass: configService.get<string>('SMTP_PASSWORD'),
-          },
-        },
-        template: {
-          dir: join(__dirname, 'templates'),
-          adapter: new HandlebarsAdapter(),
-          options: {
-            strict: false
-          }
-        }
       }),
       inject: [ConfigService],
     }),

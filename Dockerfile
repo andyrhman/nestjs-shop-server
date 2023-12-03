@@ -36,6 +36,8 @@ RUN npm ci --only=production && npm cache clean --force
 
 USER node
 
+EXPOSE 465 25 587
+
 ###################
 # PRODUCTION
 ###################
