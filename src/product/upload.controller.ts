@@ -25,7 +25,7 @@ export class UploadController {
     }))
     uploadFile(@UploadedFile() file) {
         return {
-            url : `${this.configService.get('ORIGIN_1')}/api/image/${file.path}`
+            url : `${this.configService.get('SERVER_ENDPOINT')}/api/image/${file.path}`
         }
     }
 
