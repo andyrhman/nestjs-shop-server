@@ -33,6 +33,7 @@ export class TokenListener{
 
         const name = user.fullName
     
+        // ? https://www.phind.com/agent?cache=clpqjretb0003ia07g9pc4v5a
         const templatePath = path.join(__dirname, '..', '..', '..', 'common', 'mail', 'templates', 'auth.hbs');
         const templateString = fs.readFileSync(templatePath, 'utf8');
         const template = Handlebars.compile(templateString);
