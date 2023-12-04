@@ -70,6 +70,7 @@ jobs:
         echo STRIPE_API_KEY=${{ secrets.STRIPE_API_KEY }} >> .env
         echo ORIGIN_1=${{ secrets.ORIGIN_1 }} >> .env
         echo ORIGIN_2=${{ secrets.ORIGIN_2 }} >> .env
+        echo SERVER_ENDPOINT=${{ secrets.SERVER_ENDPOINT }} >> .env
 
     - name: Generate deployment package
       run: zip -r ${{ github.run_id }}.zip . -x '*.git*'
