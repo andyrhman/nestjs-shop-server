@@ -2,6 +2,9 @@ import { Injectable } from "@nestjs/common";
 import { Order } from "../models/order.entity";
 import { OnEvent } from "@nestjs/event-emitter";
 import { MailerService } from "@nestjs-modules/mailer";
+import * as fs from 'fs';
+import * as path from 'path';
+import * as Handlebars from 'handlebars';
 
 @Injectable()
 export class OrderListener{
@@ -20,17 +23,21 @@ export class OrderListener{
             quantity: item.quantity,
             image: item.product.image
         }));
+
+        const templatePath = path.join(__dirname, '..', '..', '..', 'common', 'mail', 'templates', 'order.hbs');
+        const templateString = fs.readFileSync(templatePath, 'utf8');
+        const template = Handlebars.compile(templateString);
+
+        const html = template({
+            products,
+            orderId,
+            orderTotal
+          });
     
         await this.mailerService.sendMail({
             to: 'andyrhmnn@gmail.com',
             subject: 'An order has been completed',
-            // ! https://www.phind.com/search?cache=terb3h9bevwjuxmdfjy9gioq
-            template: '/var/nest-shop-server/src/order/templates/order',
-            context: {
-                products,
-                orderId,
-                orderTotal
-            },
+            html: html,
         })
     }    
 }

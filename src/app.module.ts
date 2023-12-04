@@ -15,8 +15,6 @@ import { ResetModule } from './reset/reset.module';
 import { StatisticModule } from './statistic/statistic.module';
 import { DatabaseConfig } from './config';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { join } from 'path';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -47,13 +45,6 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
         },
         defaults: {
           from: 'info@kitapendidikan.my.id'
-        },
-        template: {
-          dir: join(__dirname, 'templates'),
-          adapter: new HandlebarsAdapter(),
-          options: {
-            strict: false
-          }
         }
       }),
       inject: [ConfigService],

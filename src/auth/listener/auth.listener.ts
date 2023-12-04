@@ -4,6 +4,9 @@ import { OnEvent } from "@nestjs/event-emitter";
 import { MailerService } from "@nestjs-modules/mailer";
 import * as crypto from 'crypto';
 import { TokenService } from "src/user/token.service";
+import * as fs from 'fs';
+import * as path from 'path';
+import * as Handlebars from 'handlebars';
 
 @Injectable()
 export class TokenListener{
@@ -30,14 +33,19 @@ export class TokenListener{
 
         const name = user.fullName
     
+        const templatePath = path.join(__dirname, '..', '..', '..', 'common', 'mail', 'templates', 'auth.hbs');
+        const templateString = fs.readFileSync(templatePath, 'utf8');
+        const template = Handlebars.compile(templateString);
+        
+        const html = template({
+          name,
+          url
+        });
+        
         await this.mailerService.sendMail({
-            to: user.email,
-            subject: 'Verify your email',
-            template: '/var/nest-shop-server/src/auth/templates/auth',
-            context: {
-                name,
-                url
-            },
+          to: user.email,
+          subject: 'Verify your email',
+          html: html,
         });
     }    
 }

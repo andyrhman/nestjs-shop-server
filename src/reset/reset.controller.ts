@@ -4,6 +4,10 @@ import { MailerService } from '@nestjs-modules/mailer';
 import * as crypto from 'crypto';
 import { UserService } from 'src/user/user.service';
 import * as argon2 from 'argon2';
+import * as FB from 'fb';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as Handlebars from 'handlebars';
 import { ResetDTO } from './dto/reset.dto';
 import { ConfigService } from '@nestjs/config';
 
@@ -42,13 +46,18 @@ export class ResetController {
 
         const url = `${this.configService.get('ORIGIN_2')}/reset/${resetToken}`;
 
+        const templatePath = path.join(__dirname, '..', '..', 'common', 'mail', 'templates', 'email.hbs');
+        const templateString = fs.readFileSync(templatePath, 'utf8');
+        const template = Handlebars.compile(templateString);
+        
+        const html = template({
+          url
+        });
+
         await this.mailerService.sendMail({
             to: email,
             subject: 'Reset Your Password',
-            template: '/var/nest-shop-server/src/reset/templates/email',
-            context: {
-                url: url, // Pass the token to the template
-            },
+            html: html,
         })
 
         return {
