@@ -14,6 +14,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ResetModule } from './reset/reset.module';
 import { StatisticModule } from './statistic/statistic.module';
 import { DatabaseConfig } from './config';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { join } from 'path';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -26,6 +29,32 @@ import { DatabaseConfig } from './config';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         ...configService.get('database'),
+      }),
+      inject: [ConfigService],
+    }),
+    // * https://www.phind.com/agent?cache=clppilxjn0000l808i2rqhgd5
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: configService.get<string>('SMTP_HOST'),
+          port: +configService.get<number>('SMTP_PORT'),
+          secure: configService.get<string>('SMTP_SECURE') === 'true',
+          auth: {
+            user: configService.get<string>('SMTP_USERNAME'),
+            pass: configService.get<string>('SMTP_PASSWORD'),
+          },
+        },
+        defaults: {
+          from: 'info@kitapendidikan.my.id'
+        },
+        template: {
+          dir: join(__dirname, 'templates'),
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: false
+          }
+        }
       }),
       inject: [ConfigService],
     }),

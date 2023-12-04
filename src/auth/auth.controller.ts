@@ -48,12 +48,12 @@ export class AuthController {
     @Post('verify')
     async resend(
         @Body('email') email: string
-    ){ 
+    ) {
         if (!email) {
             throw new BadRequestException("Provide your email address")
         }
 
-        const user = await this.userService.findOne({email: email});
+        const user = await this.userService.findOne({ email: email });
         if (!user) {
             throw new BadRequestException("Email not found")
         }
@@ -64,17 +64,17 @@ export class AuthController {
         const tokenExpiresAt = Date.now() + this.TOKEN_EXPIRATION;
 
         // Save the reset token and expiration time
-        await this.tokenService.create({ 
-            token, 
+        await this.tokenService.create({
+            token,
             email: user.email,
             user_id: user.id,
             expiresAt: tokenExpiresAt
         })
 
-        const url = `http://localhost:4000/verify/${token}`;
+        const url = `${this.configService.get('ORIGIN_2')}/verify/${token}`;
 
         const name = user.fullName
-    
+
         await this.mailerService.sendMail({
             to: user.email,
             subject: 'Verify your email',
