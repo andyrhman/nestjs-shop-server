@@ -5,6 +5,7 @@ import * as crypto from 'crypto';
 import { UserService } from 'src/user/user.service';
 import * as argon2 from 'argon2';
 import { ResetDTO } from './dto/reset.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Controller()
 export class ResetController {
@@ -15,6 +16,7 @@ export class ResetController {
         private resetService: ResetService,
         private mailerService: MailerService,
         private userService: UserService,
+        private configService: ConfigService
     ) { }
 
     @Post('forgot')
@@ -38,7 +40,7 @@ export class ResetController {
             used: false, // Token is not used yet
         })
 
-        const url = `http://localhost:4000/reset/${resetToken}`;
+        const url = `${this.configService.get('ORIGIN_2')}/reset/${resetToken}`;
 
         await this.mailerService.sendMail({
             to: email,

@@ -48,49 +48,44 @@ export class AuthController {
     @Post('verify')
     async resend(
         @Body('email') email: string
-    ){ 
-        try{
-            if (!email) {
-                throw new BadRequestException("Provide your email address")
-            }
-    
-            const user = await this.userService.findOne({email: email});
-            if (!user) {
-                throw new BadRequestException("Email not found")
-            }
-            if (user.is_verified) {
-                throw new NotFoundException('Your account has already verified');
-            }
-            const token = crypto.randomBytes(16).toString('hex');
-            const tokenExpiresAt = Date.now() + this.TOKEN_EXPIRATION;
-    
-            // Save the reset token and expiration time
-            await this.tokenService.create({ 
-                token, 
-                email: user.email,
-                user_id: user.id,
-                expiresAt: tokenExpiresAt
-            })
-    
-            const url = `http://localhost:4000/verify/${token}`;
-    
-            const name = user.fullName
-        
-            await this.mailerService.sendMail({
-                to: user.email,
-                subject: 'Verify your email',
-                template: '/var/nest-shop-server/src/auth/templates/auth',
-                context: {
-                    name,
-                    url
-                },
-            });
-    
-            return user;
-        }catch (error){
-            console.log(error);
+    ) {
+        if (!email) {
+            throw new BadRequestException("Provide your email address")
         }
 
+        const user = await this.userService.findOne({ email: email });
+        if (!user) {
+            throw new BadRequestException("Email not found")
+        }
+        if (user.is_verified) {
+            throw new NotFoundException('Your account has already verified');
+        }
+        const token = crypto.randomBytes(16).toString('hex');
+        const tokenExpiresAt = Date.now() + this.TOKEN_EXPIRATION;
+
+        // Save the reset token and expiration time
+        await this.tokenService.create({
+            token,
+            email: user.email,
+            user_id: user.id,
+            expiresAt: tokenExpiresAt
+        })
+
+        const url = `${this.configService.get('ORIGIN_2')}/verify/${token}`;
+
+        const name = user.fullName
+
+        await this.mailerService.sendMail({
+            to: user.email,
+            subject: 'Verify your email',
+            template: '/var/nest-shop-server/src/auth/templates/auth',
+            context: {
+                name,
+                url
+            },
+        });
+
+        return user;
     }
 
     // * Register user
