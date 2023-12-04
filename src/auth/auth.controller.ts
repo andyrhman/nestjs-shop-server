@@ -28,6 +28,9 @@ import { MailerService } from '@nestjs-modules/mailer';
 import * as crypto from 'crypto';
 import { OAuth2Client } from 'google-auth-library';
 import * as FB from 'fb';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as Handlebars from 'handlebars';
 import { ConfigService } from '@nestjs/config';
 
 @UseInterceptors(ClassSerializerInterceptor)
@@ -75,16 +78,22 @@ export class AuthController {
 
         const name = user.fullName
 
-        await this.mailerService.sendMail({
-            to: user.email,
-            subject: 'Verify your email',
-            template: '/var/nest-shop-server/src/auth/templates/auth',
-            context: {
-                name,
-                url
-            },
+        // ? https://www.phind.com/agent?cache=clpqjretb0003ia07g9pc4v5a
+        const templatePath = path.join(__dirname, '..', '..', 'common', 'mail', 'templates', 'auth.hbs');
+        const templateString = fs.readFileSync(templatePath, 'utf8');
+        const template = Handlebars.compile(templateString);
+        
+        const html = template({
+          name,
+          url
         });
-
+        
+        await this.mailerService.sendMail({
+          to: user.email,
+          subject: 'Verify your email',
+          html: html,
+        });
+        
         return user;
     }
 
