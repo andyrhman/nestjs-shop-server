@@ -35,7 +35,7 @@ export class OrderListener{
           });
     
         await this.mailerService.sendMail({
-            to: 'andyrhmnn@gmail.com',
+            to: order.email,
             subject: 'An order has been completed',
             html: html,
         })
