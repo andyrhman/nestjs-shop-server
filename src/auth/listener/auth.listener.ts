@@ -31,7 +31,7 @@ export class TokenListener{
             expiresAt: tokenExpiresAt
         })
 
-        const url = `${this.configService.get('SERVER_ENDPOINT')}/api/verify/${token}`;
+        const url = `${this.configService.get('ORIGIN_2')}/verify/${token}`;
 
         const name = user.fullName
     
