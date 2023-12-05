@@ -7,13 +7,15 @@ import { TokenService } from "src/user/token.service";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as Handlebars from 'handlebars';
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class TokenListener{
     private readonly TOKEN_EXPIRATION = 1 * 60 * 1000;
     constructor(
         private mailerService: MailerService,
-        private tokenService: TokenService
+        private tokenService: TokenService,
+        private configService: ConfigService
     ) {}
 
     @OnEvent('user.created')
@@ -29,7 +31,7 @@ export class TokenListener{
             expiresAt: tokenExpiresAt
         })
 
-        const url = `http://localhost:4000/api/verify/${token}`;
+        const url = `${this.configService.get('ORIGIN_2')}/api/verify/${token}`;
 
         const name = user.fullName
     

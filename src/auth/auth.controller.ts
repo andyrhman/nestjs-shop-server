@@ -74,7 +74,7 @@ export class AuthController {
             expiresAt: tokenExpiresAt
         })
 
-        const url = `${this.configService.get('ORIGIN_2')}/verify/${token}`;
+        const url = `${this.configService.get('ORIGIN_2')}/api/verify/${token}`;
 
         const name = user.fullName
 
