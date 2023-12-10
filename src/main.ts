@@ -11,8 +11,9 @@ async function bootstrap() {
   // ? https://www.phind.com/search?cache=m7mtjap28zsv3jxtb6wu4znj
   // ! app.useGlobalFilters(new HttpExceptionFilter());
 
-  // * Using api as the global url --> http://localhost:8000/api
-  app.setGlobalPrefix('api');
+  // ? Using api as the global url --> http://localhost:8000/api
+  // ? Exlude health-check if you use load balancer on AWS EB
+  app.setGlobalPrefix('api', { exclude: ['health-check'] });
 
   // * Adding this for the class validator
   app.useGlobalPipes(new ValidationPipe());

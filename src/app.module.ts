@@ -15,6 +15,7 @@ import { ResetModule } from './reset/reset.module';
 import { StatisticModule } from './statistic/statistic.module';
 import { DatabaseConfig } from './config';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { HealthCheckController } from './health-check/health-check.controller';
 
 @Module({
   imports: [
@@ -62,7 +63,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
     ResetModule,
     StatisticModule,
   ],
-  controllers: [],
+  controllers: [HealthCheckController],
   providers: [],
 })
 export class AppModule {}
